@@ -49,6 +49,8 @@ public class Store
             }
             else
             {
+                Console.WriteLine("******************************************");
+                Console.WriteLine("Expired: "+string.Join(" ",command));
                 map.Remove(command[1]);
                 return $"$-1\r\n";
             }
