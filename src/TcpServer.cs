@@ -39,7 +39,7 @@ class TcpServer
     }
 
 
-    public async Task StartMasterAsync(CancellationToken cancellationToken)
+    public async Task StartMasterAsync()
     {
         try
         {
@@ -47,48 +47,44 @@ class TcpServer
 
             Console.WriteLine($"Server started at {_config.port}");
 
-            while (!cancellationToken.IsCancellationRequested)
+            try
             {
-                try
-                {
-                    TcpClient socket = await _server.AcceptTcpClientAsync();
-                    id++;
+                TcpClient socket = await _server.AcceptTcpClientAsync();
+                id++;
 
-                    if (socket.Client.RemoteEndPoint is not IPEndPoint remoteIpEndPoint)
+                NetworkStream stream = socket.GetStream();
+                IPEndPoint? remoteIpEndPoint = socket.Client.RemoteEndPoint as IPEndPoint;
+                if (remoteIpEndPoint == null)
+                {
+                    socket.Close();
+                    return;
+                }
+                Client client = new Client(socket, remoteIpEndPoint, stream, id);
+                _infra.clients.Add(client);
+
+                _ = Task.Run(async () =>
+                {
+                    try
                     {
-                        socket.Close();
-                        continue;
+                        await HandleClientAsync(client);
                     }
-
-                    NetworkStream stream = socket.GetStream();
-
-                    Client client = new Client(socket, remoteIpEndPoint, stream, id);
-                    _infra.clients.Add(client);
-
-                    _ = Task.Run(async () =>
+                    catch (Exception ex)
                     {
-                        try
-                        {
-                            await HandleClientAsync(client);
-                        }
-                        catch (Exception ex)
-                        {
-                            // Handle client-specific exceptions
-                            Console.WriteLine($"Error handling client: {ex.Message}");
-                        }
-                        finally
-                        {
-                            // Clean up after client disconnection
-                            socket.Close();
-                            _infra.clients.Remove(client);
-                        }
-                    });
-                }
-                catch (Exception ex)
-                {
-                    // Handle exceptions related to accepting clients
-                    Console.WriteLine($"Error accepting client: {ex.Message}");
-                }
+                        // Handle client-specific exceptions
+                        Console.WriteLine($"Error handling client: {ex.Message}");
+                    }
+                    finally
+                    {
+                        // Clean up after client disconnection
+                        socket.Close();
+                        _infra.clients.Remove(client);
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                // Handle exceptions related to accepting clients
+                Console.WriteLine($"Error accepting client: {ex.Message}");
             }
         }
         finally
