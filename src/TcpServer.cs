@@ -131,18 +131,24 @@ class TcpServer
         }
     }
 
+    //three threads
     public async Task StartSlaveAsync()
     {
         _server.Start();
-        
-        Thread masterThread = new Thread(async () => await StartMasterForSlaveInstanceAsync());
-        masterThread.Start();
-        
+
+        // Start a new thread for InitiateSlaveryAsync.
         Thread slaveThread = new Thread(async () => await InitiateSlaveryAsync());
         slaveThread.Start();
+
+        // Start a new thread for StartMasterForSlaveInstanceAsync.
+        Thread masterThread = new Thread(async () => await StartMasterForSlaveInstanceAsync());
+        masterThread.Start();
+
+        // The threads will continue running in the background.
+        // You do not need to join them if either has an infinite loop.
     }
 
-
+    ////concurrency
     //public async Task StartSlaveAsync()
     //{
     //    _server.Start();
