@@ -130,15 +130,31 @@ class TcpServer
             //_server = null;
         }
     }
+
     public async Task StartSlaveAsync()
     {
         _server.Start();
-        Task ServerTask = Task.Run(async () => await StartMasterForSlaveInstanceAsync());
-        Console.WriteLine("connecting with master ===========================================" );
-        Task SlaveTask = Task.Run(async () => await InitiateSlaveryAsync());
 
-        await Task.WhenAll(ServerTask,SlaveTask);
+        // Start a new thread for InitiateSlaveryAsync.
+        Thread slaveThread = new Thread(async () => await InitiateSlaveryAsync());
+        slaveThread.Start();
+
+        // StartMasterForSlaveInstanceAsync runs on the current thread.
+        await StartMasterForSlaveInstanceAsync();
+
+        // The thread for InitiateSlaveryAsync will continue running in the background.
+        // You do not need to join it if StartMasterForSlaveInstanceAsync has an infinite loop.
     }
+
+
+    //public async Task StartSlaveAsync()
+    //{
+    //    _server.Start();
+    //    Task ServerTask = Task.Run(async () => await StartMasterForSlaveInstanceAsync());
+    //    Task SlaveTask = Task.Run(async () => await InitiateSlaveryAsync());
+
+    //    await Task.WhenAll(ServerTask,SlaveTask);
+    //}
 
     public async Task InitiateSlaveryAsync()
     {
