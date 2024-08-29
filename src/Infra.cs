@@ -1,13 +1,14 @@
 ﻿using System.Net.Sockets;
 using System.Net;
 using System.Text;
+using System.Collections.Concurrent;
 
 namespace codecrafters_redis;
 
 public class Infra
 {
-    public List<Slave> slaves =  new List<Slave>();
-    public List<Client> clients = new List<Client>();
+    public ConcurrentBag<Slave> slaves =  new ConcurrentBag<Slave>();
+    public ConcurrentBag<Client> clients = new ConcurrentBag<Client>();
 }
 
 

@@ -74,9 +74,9 @@ public class CommandHandler
                 //_ = Task.Run(async () => await sendCommandToSlaves(_infra.slaves, command));
                 break;
 
-            //case "info":
-            //    res = Info(command);
-            //    break;
+            case "info":
+                res = Info(command);
+                break;
 
             //case "replconf":
             //    res = ReplConf(command, client);
@@ -112,7 +112,6 @@ public class CommandHandler
 
         return res;
     }
-
     //public async Task sendCommandToSlaves(List<Slave> slaves, string[] command)
     //{
     //    // add support for the use of eof and psync2 capabilities
@@ -127,37 +126,37 @@ public class CommandHandler
 
 
 
-    //public string Info(string[] command)
-    //{
-    //    switch (command[1])
-    //    {
-    //        case "replication":
-    //            try
-    //            {
-    //                return Replication();
-    //            }
-    //            catch (Exception e)
-    //            {
-    //                return e.Message;
-    //            }
-    //        default:
-    //            return "Invalid options";
+    public string Info(string[] command)
+    {
+        switch (command[1])
+        {
+            case "replication":
+                try
+                {
+                    return Replication();
+                }
+                catch (Exception e)
+                {
+                    return e.Message;
+                }
+            default:
+                return "Invalid options";
 
-    //    }
-    //}
-    //public string Replication()
-    //{
-    //    string role = $"role:{_config.role}";
-    //    string masterReplid = $"master_replid:{_config.masterReplId}";
-    //    string masterReplOffset = $"master_repl_offset:{_config.masterReplOffset}";
+        }
+    }
+    public string Replication()
+    {
+        string role = $"role:{_config.role}";
+        string masterReplid = $"master_replid:{_config.masterReplId}";
+        string masterReplOffset = $"master_repl_offset:{_config.masterReplOffset}";
 
-    //    string[] info = [role, masterReplid, masterReplOffset];
+        string[] info = [role, masterReplid, masterReplOffset];
 
-    //    string replicationData = string.Join("\r\n", info);
+        string replicationData = string.Join("\r\n", info);
 
-    //    Console.WriteLine(replicationData);
-    //    return _parser.RespBulkString(replicationData);
-    //}
+        Console.WriteLine(replicationData);
+        return _parser.RespBulkString(replicationData);
+    }
 
 
 
