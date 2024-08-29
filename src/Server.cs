@@ -42,7 +42,7 @@ class Program
 
         TcpServer app = serviceProvider.GetRequiredService<TcpServer>();
 
-        if (config.role == "master")
+        if (config.role.Equals("master"))
         {
             await app.StartMasterAsync();
         }
