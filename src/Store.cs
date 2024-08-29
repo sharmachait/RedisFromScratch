@@ -10,23 +10,24 @@ public class Store
     }
 
 
-    public string Set(string[] command, DateTime currTime)
+    public string Set(string[] command)
     {
         try
         {
             int pxFlag = command.ToList().IndexOf("px");
             if (command.Length == 3)
             {
+
                 DateTime expiry = DateTime.MaxValue;
-                Value val = new Value(command[2], currTime, expiry);
+                Value val = new Value(command[2], DateTime.Now, expiry);
                 map[command[1]] = val;
             }
             else if (pxFlag >-1)// && command.Length == 5 && command[3].Equals("px")
             {
                 int delta = int.Parse(command[pxFlag+1]);
 
-                DateTime expiry = currTime.AddMilliseconds(delta);
-                Value val = new Value(command[2], currTime, expiry);
+                DateTime now = DateTime.Now;
+                Value val = new Value(command[2], DateTime.Now, now.AddMilliseconds(delta));
                 map[command[1]] = val;
             }
             return "+OK\r\n";
@@ -37,12 +38,12 @@ public class Store
         }
     }
 
-    public string Get(string[] command, DateTime currTime)
+    public string Get(string[] command)
     {
         try
         {
             Value val = map[command[1]];
-
+            DateTime currTime = DateTime.Now;
             if (currTime <= val.expiry)
             {
                 return $"+{val.val}\r\n";

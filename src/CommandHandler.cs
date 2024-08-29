@@ -51,7 +51,7 @@ public class CommandHandler
 
         string cmd = command[0];
 
-        DateTime currTime = DateTime.Now;
+        
         string res = "";
 
         switch (cmd)
@@ -66,11 +66,11 @@ public class CommandHandler
                 break;
 
             case "get":
-                res = _store.Get(command, currTime);
+                res = _store.Get(command);
                 break;
 
             case "set":
-                res = Set(client.remoteIpEndPoint, command, currTime);
+                res = Set(client.remoteIpEndPoint, command);
                 //_ = Task.Run(async () => await sendCommandToSlaves(_infra.slaves, command));
                 break;
 
@@ -92,7 +92,7 @@ public class CommandHandler
         return res;
     }
 
-    public string Set(IPEndPoint remoteIpEndPoint, string[] command, DateTime currTime)
+    public string Set(IPEndPoint remoteIpEndPoint, string[] command)
     {
         //if (_config.role.Equals("slave"))
         //{
@@ -108,7 +108,7 @@ public class CommandHandler
         //        return _parser.RespBulkString("READONLY You can't write against a read only replica.");
         //    }
         //}
-        var res = _store.Set(command, currTime);
+        var res = _store.Set(command);
 
         return res;
     }
