@@ -41,9 +41,8 @@ class TcpServer
 
     public async Task StartMasterAsync()
     {
-        using (TcpListener server = new TcpListener(IPAddress.Any, _config.port))
+        try
         {
-            _server = server;
             _server.Start();
 
             Console.WriteLine($"Server started at {_config.port}");
@@ -65,6 +64,14 @@ class TcpServer
 
                 _ = Task.Run(() => HandleClientAsync(client));
             }
+        }
+        finally
+        {
+            _infra.clients.Clear();
+            _infra.slaves.Clear();
+            _server.Stop();
+            _server.Dispose();
+            _server = null;
         }
     }
 
