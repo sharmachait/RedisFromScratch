@@ -51,6 +51,9 @@ public class Store
             {
                 Console.WriteLine("******************************************");
                 Console.WriteLine("Expired: "+string.Join(" ",command));
+                Console.WriteLine(currTime.ToString());
+                Console.WriteLine(val.expiry.ToString());
+
                 map.Remove(command[1]);
                 return $"$-1\r\n";
             }
