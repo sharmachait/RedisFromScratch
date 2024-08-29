@@ -60,7 +60,7 @@ class TcpServer
 
                 Client client = new Client(socket, remoteIpEndPoint, stream, id);
 
-                _infra.clients.Add(client);
+                //_infra.clients.Add(client);
 
                 _ = Task.Run(async () => await HandleClientAsync(client));
             }
@@ -81,23 +81,25 @@ class TcpServer
 
         while (client.socket.Connected)
         {
-            if (client.stream.DataAvailable)
+            //if (client.stream.DataAvailable)
+            //{
+            byte[] buffer = new byte[client.socket.ReceiveBufferSize];
+            int bytesRead = await client.stream.ReadAsync(buffer, 0, buffer.Length);
+            if (bytesRead > 0)
             {
-                byte[] buffer = new byte[client.socket.ReceiveBufferSize];
-                int bytesRead = await client.stream.ReadAsync(buffer, 0, buffer.Length);
-                if (bytesRead > 0)
-                {
-                    List<string[]> commands = _parser.Deserialize(buffer);
+                List<string[]> commands = _parser.Deserialize(buffer);
 
-                    foreach (string[] command in commands)
-                    {
-                        Console.WriteLine("*****************************************************");
-                        Console.WriteLine("Command from client: "+ string.Join(" ",command));
-                        string response = await _handler.Handle(command, client,DateTime.Now);
-                        await client.SendAsync(response);
-                    }
+                foreach (string[] command in commands)
+                {
+                    Console.WriteLine("*****************************************************");
+                    Console.WriteLine("Command from client: " + string.Join(" ", command));
+                    string response = await _handler.Handle(command, client, DateTime.Now);
+                    await client.SendAsync(response);
                 }
             }
+            //}
+
+
         }
     }
     
