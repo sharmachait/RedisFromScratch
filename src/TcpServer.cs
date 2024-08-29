@@ -99,8 +99,9 @@ class TcpServer
     
     public async Task StartSlaveAsync()
     {
-        Console.WriteLine("Main server at "+_config.port);
         _ = Task.Run(async () => await StartMasterAsync());
+        Console.WriteLine("connecting with master ===========================================" );
+
         TcpClient master = new TcpClient();
         await master.ConnectAsync(_config.masterHost, _config.masterPort);
         Console.WriteLine($"Replicating from {_config.masterHost}: {_config.masterPort}");
