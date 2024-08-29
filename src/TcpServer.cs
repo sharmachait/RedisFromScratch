@@ -62,7 +62,7 @@ class TcpServer
 
                 _infra.clients.Add(client);
 
-                _ = Task.Run(() => HandleClientAsync(client));
+                _ = Task.Run(async () => await HandleClientAsync(client));
             }
         }
         finally
@@ -100,10 +100,12 @@ class TcpServer
             }
         }
     }
+    
     public async Task StartSlaveAsync()
     {
         Console.WriteLine("start slave not implemented");
     }
+
     //public async Task StartReplicaAsync()
     //{
     //    TcpClient master = new TcpClient();
