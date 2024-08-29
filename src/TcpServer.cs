@@ -103,7 +103,7 @@ class TcpServer
         TcpClient master = new TcpClient();
         await master.ConnectAsync(_config.masterHost, _config.masterPort);
         Console.WriteLine($"Replicating from {_config.masterHost}: {_config.masterPort}");
-        //await InitiateSlaveryAsync(master);
+        await InitiateSlaveryAsync(master);
         //Task 
         //_ = Task.Run(async () => await StartMasterPropagation(master));
 
@@ -111,49 +111,49 @@ class TcpServer
 
     //done by slave instace
     //dont need to create the slave object here
-    //public async Task InitiateSlaveryAsync(TcpClient client)
-    //{
-    //    NetworkStream stream = client.GetStream();
-    //    StreamReader reader = new StreamReader(stream, Encoding.UTF8);
+    public async Task InitiateSlaveryAsync(TcpClient client)
+    {
+        NetworkStream stream = client.GetStream();
+        StreamReader reader = new StreamReader(stream, Encoding.UTF8);
 
-    //    string[] pingCommand = ["PING"];
-    //    Console.WriteLine($"Sending: {_parser.RespArray(pingCommand)}");
-    //    await stream.WriteAsync(Encoding.UTF8.GetBytes(_parser.RespArray(pingCommand)));
-    //    string response = await reader.ReadLineAsync();
-    //    if (!"+PONG".Equals(response))
-    //        return;
-    //    Console.WriteLine($"Response: {response}");
+        string[] pingCommand = ["PING"];
+        Console.WriteLine($"Sending: {_parser.RespArray(pingCommand)}");
+        await stream.WriteAsync(Encoding.UTF8.GetBytes(_parser.RespArray(pingCommand)));
+        string response = await reader.ReadLineAsync();
+        if (!"+PONG".Equals(response))
+            return;
+        Console.WriteLine($"Response: {response}");
 
-    //    string[] ReplconfPortCommand = ["REPLCONF", "listening-port", _config.port.ToString()];
-    //    Console.WriteLine($"Sending: {_parser.RespArray(ReplconfPortCommand)}");
-    //    await stream.WriteAsync(Encoding.UTF8.GetBytes(_parser.RespArray(ReplconfPortCommand)));
-    //    response = await reader.ReadLineAsync();
-    //    if (!"+OK".Equals(response))
-    //        return;
-    //    Console.WriteLine($"Response: {response}");
+        //string[] ReplconfPortCommand = ["REPLCONF", "listening-port", _config.port.ToString()];
+        //Console.WriteLine($"Sending: {_parser.RespArray(ReplconfPortCommand)}");
+        //await stream.WriteAsync(Encoding.UTF8.GetBytes(_parser.RespArray(ReplconfPortCommand)));
+        //response = await reader.ReadLineAsync();
+        //if (!"+OK".Equals(response))
+        //    return;
+        //Console.WriteLine($"Response: {response}");
 
-    //    string[] ReplconfCapaCommand = ["REPLCONF", "capa", "psync2"];
-    //    Console.WriteLine($"Sending: {_parser.RespArray(ReplconfCapaCommand)}");
-    //    await stream.WriteAsync(Encoding.UTF8.GetBytes(_parser.RespArray(ReplconfCapaCommand)));
-    //    response = await reader.ReadLineAsync();
-    //    if (!"+OK".Equals(response))
-    //        return;
-    //    Console.WriteLine($"Response: {response}");
+        //string[] ReplconfCapaCommand = ["REPLCONF", "capa", "psync2"];
+        //Console.WriteLine($"Sending: {_parser.RespArray(ReplconfCapaCommand)}");
+        //await stream.WriteAsync(Encoding.UTF8.GetBytes(_parser.RespArray(ReplconfCapaCommand)));
+        //response = await reader.ReadLineAsync();
+        //if (!"+OK".Equals(response))
+        //    return;
+        //Console.WriteLine($"Response: {response}");
 
-    //    Console.WriteLine("ready to process commands from master");
+        //Console.WriteLine("ready to process commands from master");
 
-    //    string[] PsyncCommand = ["PSYNC", "?", "-1"];
-    //    Console.WriteLine($"Sending: {_parser.RespArray(PsyncCommand)}");
-    //    await stream.WriteAsync(Encoding.UTF8.GetBytes(_parser.RespArray(PsyncCommand)));
-    //    //response = await reader.ReadLineAsync();
-    //    //Console.WriteLine($"Response: {response}");
+        //string[] PsyncCommand = ["PSYNC", "?", "-1"];
+        //Console.WriteLine($"Sending: {_parser.RespArray(PsyncCommand)}");
+        //await stream.WriteAsync(Encoding.UTF8.GetBytes(_parser.RespArray(PsyncCommand)));
+        //response = await reader.ReadLineAsync();
+        //Console.WriteLine($"Response: {response}");
 
-    //    //if (response == null || !"+FULLRESYNC".Equals(response.Substring(0, response.IndexOf(" "))))
-    //    //    return null;
+        //if (response == null || !"+FULLRESYNC".Equals(response.Substring(0, response.IndexOf(" "))))
+        //    return null;
 
-    //    //do multi thread to listen from master
+        //do multi thread to listen from master
 
-    //}
+    }
 
     //public async Task StartMasterPropagation(TcpClient ConnectionWithMaster)
     //{
