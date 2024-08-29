@@ -134,16 +134,12 @@ class TcpServer
     public async Task StartSlaveAsync()
     {
         _server.Start();
-
-        // Start a new thread for InitiateSlaveryAsync.
+        
+        Thread masterThread = new Thread(async () => await StartMasterForSlaveInstanceAsync());
+        masterThread.Start();
+        
         Thread slaveThread = new Thread(async () => await InitiateSlaveryAsync());
         slaveThread.Start();
-
-        // StartMasterForSlaveInstanceAsync runs on the current thread.
-        await StartMasterForSlaveInstanceAsync();
-
-        // The thread for InitiateSlaveryAsync will continue running in the background.
-        // You do not need to join it if StartMasterForSlaveInstanceAsync has an infinite loop.
     }
 
 
