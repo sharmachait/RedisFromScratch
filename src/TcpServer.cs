@@ -99,6 +99,7 @@ class TcpServer
     
     public async Task StartSlaveAsync()
     {
+        Console.WriteLine("Main server at "+_config.port);
         _ = Task.Run(async () => await StartMasterAsync());
         TcpClient master = new TcpClient();
         await master.ConnectAsync(_config.masterHost, _config.masterPort);
@@ -117,7 +118,7 @@ class TcpServer
         StreamReader reader = new StreamReader(stream, Encoding.UTF8);
 
         string[] pingCommand = ["PING"];
-        Console.WriteLine($"Sending: {_parser.RespArray(pingCommand)}");
+        //Console.WriteLine($"Sending: {_parser.RespArray(pingCommand)}");
         stream.Write(Encoding.UTF8.GetBytes(_parser.RespArray(pingCommand)));
         string response = reader.ReadLine();
         if (!"+PONG".Equals(response))
