@@ -85,9 +85,11 @@ public class CommandHandler
             case "replconf":
                 res = ReplConf(command, client);
                 break;
-            //case "psync":
-            //    res = await Psync(command, client);
-            //    break;
+
+            case "psync":
+                res = await Psync(command, client);
+                break;
+
             default:
                 res = "+No Response\r\n";
                 break;

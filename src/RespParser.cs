@@ -29,9 +29,6 @@ public class RespParser
             string[] commandArray = ParseArray(parts);
             res.Add(commandArray);
         }
-
-        
-
         return res;
     }
 
