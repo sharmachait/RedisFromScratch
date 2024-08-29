@@ -20,20 +20,20 @@ public class BaseClient
     public string ipAddress;
     public int id;
 
-    public void Send(string response)
+    public async Task SendAsync(string response)
     {
-        stream.Write(Encoding.UTF8.GetBytes(response));
+        await stream.WriteAsync(Encoding.UTF8.GetBytes(response));
     }
-    public void Send(byte[] bytes)
+    public async Task Send(byte[] bytes)
     {
-        stream.Write(bytes);
+        await stream.WriteAsync(bytes);
     }
 
-    public void Send(string response, byte[] bytes)
+    public async Task Send(string response, byte[] bytes)
     {
-        stream.Write(Encoding.UTF8.GetBytes(response));
+        await stream.WriteAsync(Encoding.UTF8.GetBytes(response));
 
-        stream.Write(bytes);
+        await stream.WriteAsync(bytes);
     }
 }
 

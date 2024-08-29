@@ -78,9 +78,10 @@ class TcpServer
 
                     foreach (string[] command in commands)
                     {
+                        Console.WriteLine("*****************************************************");
                         Console.WriteLine("Command from client: "+ string.Join(" ",command));
                         string response = await _handler.Handle(command, client);
-                        client.Send(response);
+                        await client.SendAsync(response);
                     }
                 }
             }

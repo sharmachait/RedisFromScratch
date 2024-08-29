@@ -65,19 +65,14 @@ public class CommandHandler
                 res = $"+{command[1]}\r\n";
                 break;
 
-            //case "get":
+            case "get":
+                res = _store.Get(command, currTime);
+                break;
 
-            //    foreach(string c in command)
-            //    {
-            //        Console.Write(c + " ");
-            //    }
-            //    res = _store.Get(command, currTime);
-            //    break;
-
-            //case "set":
-            //    res = Set(client.remoteIpEndPoint, command, currTime);
-            //    _ = Task.Run(() => sendCommandToSlaves(_infra.slaves, command));
-            //    break;
+            case "set":
+                res = Set(client.remoteIpEndPoint, command, currTime);
+                //_ = Task.Run(async () => await sendCommandToSlaves(_infra.slaves, command));
+                break;
 
             //case "info":
             //    res = Info(command);
@@ -97,14 +92,35 @@ public class CommandHandler
         return res;
     }
 
-    //public void sendCommandToSlaves(List<Slave> slaves, string[] command)
+    public string Set(IPEndPoint remoteIpEndPoint, string[] command, DateTime currTime)
+    {
+        //if (_config.role.Equals("slave"))
+        //{
+        //    string clientIpAddress = remoteIpEndPoint.Address.ToString();
+        //    int clientPort = remoteIpEndPoint.Port;
+
+        //    if (_config.masterHost.Equals(clientIpAddress))
+        //    {
+        //        return _store.Set(command, currTime);
+        //    }
+        //    else
+        //    {
+        //        return _parser.RespBulkString("READONLY You can't write against a read only replica.");
+        //    }
+        //}
+        var res = _store.Set(command, currTime);
+
+        return res;
+    }
+
+    //public async Task sendCommandToSlaves(List<Slave> slaves, string[] command)
     //{
     //    // add support for the use of eof and psync2 capabilities
     //    foreach (Slave slave in slaves)
     //    {
     //        string commandRespString = _parser.RespArray(command);
     //        Console.WriteLine(commandRespString);
-    //        slave.connection.Send(commandRespString);
+    //        await slave.connection.SendAsync(commandRespString);
     //    }
     //}
 
@@ -146,26 +162,7 @@ public class CommandHandler
 
 
 
-    //public string Set(IPEndPoint remoteIpEndPoint, string[] command, DateTime currTime)
-    //{
-    //    if (_config.role.Equals("slave"))
-    //    {
-    //        string clientIpAddress = remoteIpEndPoint.Address.ToString();
-    //        int clientPort = remoteIpEndPoint.Port;
 
-    //        if (_config.masterHost.Equals(clientIpAddress))
-    //        {
-    //            return _store.Set(command, currTime);
-    //        }
-    //        else
-    //        {
-    //            return _parser.RespBulkString("READONLY You can't write against a read only replica.");
-    //        }
-    //    }
-    //    var res = _store.Set(command, currTime);
-
-    //    return res;
-    //}
 
     //public string SetFromMaster(string[] command, DateTime currTime)
     //{
