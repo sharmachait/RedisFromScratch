@@ -154,7 +154,6 @@ public class CommandHandler
 
         string replicationData = string.Join("\r\n", info);
 
-        Console.WriteLine(replicationData);
         return _parser.RespBulkString(replicationData);
     }
 

@@ -50,7 +50,7 @@ class TcpServer
             while (true)
             {
                 TcpClient socket = await _server.AcceptTcpClientAsync();
-                Console.WriteLine("Client id: " + id + " ***********************************");
+                //Console.WriteLine("Client id: " + id + " ***********************************");
                 id++;
                 IPEndPoint? remoteIpEndPoint = socket.Client.RemoteEndPoint as IPEndPoint;
                 if (remoteIpEndPoint == null)
@@ -67,11 +67,11 @@ class TcpServer
         }
         finally
         {
-            _infra.clients.Clear();
-            _infra.slaves.Clear();
-            _server.Stop();
-            _server.Dispose();
-            _server = null;
+            //_infra.clients.Clear();
+            //_infra.slaves.Clear();
+            //_server.Stop();
+            //_server.Dispose();
+            //_server = null;
         }
     }
 
@@ -88,8 +88,8 @@ class TcpServer
 
                 foreach (string[] command in commands)
                 {
-                    Console.WriteLine("*****************************************************");
-                    Console.WriteLine("Command from client: " + string.Join(" ", command));
+                    //Console.WriteLine("*****************************************************");
+                    //Console.WriteLine("Command from client: " + string.Join(" ", command));
                     string response = await _handler.Handle(command, client, DateTime.Now);
                     await client.SendAsync(response);
                 }
