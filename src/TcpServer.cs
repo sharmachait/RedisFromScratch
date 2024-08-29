@@ -47,44 +47,21 @@ class TcpServer
 
             Console.WriteLine($"Server started at {_config.port}");
 
-            try
+            while (true)
             {
                 TcpClient socket = await _server.AcceptTcpClientAsync();
                 id++;
-
-                NetworkStream stream = socket.GetStream();
                 IPEndPoint? remoteIpEndPoint = socket.Client.RemoteEndPoint as IPEndPoint;
                 if (remoteIpEndPoint == null)
-                {
-                    socket.Close();
                     return;
-                }
+
+                NetworkStream stream = socket.GetStream();
+
                 Client client = new Client(socket, remoteIpEndPoint, stream, id);
+
                 _infra.clients.Add(client);
 
-                _ = Task.Run(async () =>
-                {
-                    try
-                    {
-                        await HandleClientAsync(client);
-                    }
-                    catch (Exception ex)
-                    {
-                        // Handle client-specific exceptions
-                        Console.WriteLine($"Error handling client: {ex.Message}");
-                    }
-                    finally
-                    {
-                        // Clean up after client disconnection
-                        socket.Close();
-                        _infra.clients.Remove(client);
-                    }
-                });
-            }
-            catch (Exception ex)
-            {
-                // Handle exceptions related to accepting clients
-                Console.WriteLine($"Error accepting client: {ex.Message}");
+                _ = Task.Run(async () => await HandleClientAsync(client));
             }
         }
         finally
