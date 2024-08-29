@@ -45,6 +45,10 @@ public class CommandHandler
     //    return res;
     //}
 
+    //public string SetFromMaster(string[] command, DateTime currTime)
+    //{
+    //    return _store.Set(command, currTime);
+    //}
 
     public async Task<string> Handle(string[] command, Client client, DateTime currTime)
     {
@@ -157,18 +161,6 @@ public class CommandHandler
         return _parser.RespBulkString(replicationData);
     }
 
-
-
-
-
-
-    //public string SetFromMaster(string[] command, DateTime currTime)
-    //{
-    //    return _store.Set(command, currTime);
-    //}
-
-
-
     public string ReplConf(string[] command, Client client)
     {
         string clientIpAddress = client.remoteIpEndPoint.Address.ToString();
@@ -215,45 +207,46 @@ public class CommandHandler
 
 
 
-    //public async Task<string> Psync(string[] command, Client client)
-    //{
-    //    // add support for the use of eof and psync2 capabilities
-    //    try
-    //    {
-    //        string clientIpAddress = client.remoteIpEndPoint.Address.ToString();
-    //        int clientPort = client.remoteIpEndPoint.Port;
+    public async Task<string> Psync(string[] command, Client client)
+    {
+        // add support for the use of eof and psync2 capabilities
+        try
+        {
+            string clientIpAddress = client.remoteIpEndPoint.Address.ToString();
+            int clientPort = client.remoteIpEndPoint.Port;
 
-    //        string replicationIdMaster = command[1];
-    //        string replicationOffsetMaster = command[2];
+            string replicationIdMaster = command[1];
+            string replicationOffsetMaster = command[2];
 
-    //        if (replicationIdMaster.Equals("?") && replicationOffsetMaster.Equals("-1"))
-    //        {
-    //            string emptyRdbFileBase64 =
-    //       "UkVESVMwMDEx+glyZWRpcy12ZXIFNy4yLjD6CnJlZGlzLWJpdHPAQPoFY3RpbWXCbQi8ZfoIdXNlZC1tZW3CsMQQAPoIYW9mLWJhc2XAAP/wbjv+wP9aog==";
+            if (replicationIdMaster.Equals("?") && replicationOffsetMaster.Equals("-1"))
+            {
+                // TODO READ RDB FILE FROM FS
+                string emptyRdbFileBase64 =
+           "UkVESVMwMDEx+glyZWRpcy12ZXIFNy4yLjD6CnJlZGlzLWJpdHPAQPoFY3RpbWXCbQi8ZfoIdXNlZC1tZW3CsMQQAPoIYW9mLWJhc2XAAP/wbjv+wP9aog==";
 
-    //            byte[] rdbFile = Convert.FromBase64String(emptyRdbFileBase64);
+                byte[] rdbFile = Convert.FromBase64String(emptyRdbFileBase64);
 
-    //            byte[] rdbResynchronizationFileMsg =
-    //                Encoding.ASCII.GetBytes($"${rdbFile.Length}\r\n")
-    //                    .Concat(rdbFile)
-    //                    .ToArray();
+                byte[] rdbResynchronizationFileMsg =
+                    Encoding.ASCII.GetBytes($"${rdbFile.Length}\r\n")
+                        .Concat(rdbFile)
+                        .ToArray();
 
-    //            client.Send(
-    //                $"+FULLRESYNC {_config.masterReplId} {_config.masterReplOffset}\r\n",
-    //                rdbResynchronizationFileMsg
-    //            );
+                await client.SendAsync(
+                    $"+FULLRESYNC {_config.masterReplId} {_config.masterReplOffset}\r\n",
+                    rdbResynchronizationFileMsg
+                );
 
-    //            return "";
-    //        }
-    //        else
-    //        {
-    //            return "Options not supported";
-    //        }
-    //    }
-    //    catch (Exception e)
-    //    {
-    //        Console.WriteLine(e.Message);
-    //        return "Options not supported";
-    //    }
-    //}
+                return "";
+            }
+            else
+            {
+                return "Options not supported";
+            }
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e.Message);
+            return "Options not supported";
+        }
+    }
 }

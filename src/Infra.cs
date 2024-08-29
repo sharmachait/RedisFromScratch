@@ -35,7 +35,7 @@ public class BaseClient
         await stream.WriteAsync(bytes);
     }
 
-    public async Task Send(string response, byte[] bytes)
+    public async Task SendAsync(string response, byte[] bytes)
     {
         await stream.WriteAsync(Encoding.UTF8.GetBytes(response));
 
