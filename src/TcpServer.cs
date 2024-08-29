@@ -61,8 +61,8 @@ class TcpServer
                 Client client = new Client(socket, remoteIpEndPoint, stream, id);
 
                 _infra.clients.Add(client);
-
-                _ = Task.Run(() => HandleClientAsync(client));
+                HandleClientAsync(client);
+                //_ = Task.Run(() => );
             }
         }
         finally
