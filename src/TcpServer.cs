@@ -59,11 +59,11 @@ class TcpServer
 
             _infra.clients.Add(client);
 
-            _ = Task.Run(async () => await HandleClientAsync(client));
+            _ = Task.Run(async () => await HandleClientAsync(client, DateTime.Now));
         }
     }
 
-    public async Task HandleClientAsync(Client client)
+    public async Task HandleClientAsync(Client client, DateTime currTime)
     {
 
         while (client.socket.Connected)
@@ -80,7 +80,7 @@ class TcpServer
                     {
                         Console.WriteLine("*****************************************************");
                         Console.WriteLine("Command from client: "+ string.Join(" ",command));
-                        string response = await _handler.Handle(command, client);
+                        string response = await _handler.Handle(command, client,currTime);
                         await client.SendAsync(response);
                     }
                 }

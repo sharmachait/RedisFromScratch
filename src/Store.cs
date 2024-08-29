@@ -38,12 +38,12 @@ public class Store
         }
     }
 
-    public string Get(string[] command)
+    public string Get(string[] command, DateTime currTime)
     {
         try
         {
             Value val = map[command[1]];
-            DateTime currTime = DateTime.Now;
+            
             if (currTime <= val.expiry)
             {
                 return $"+{val.val}\r\n";

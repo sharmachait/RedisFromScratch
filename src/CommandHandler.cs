@@ -46,7 +46,7 @@ public class CommandHandler
     //}
 
 
-    public async Task<string> Handle(string[] command, Client client)
+    public async Task<string> Handle(string[] command, Client client, DateTime currTime)
     {
 
         string cmd = command[0];
@@ -66,7 +66,7 @@ public class CommandHandler
                 break;
 
             case "get":
-                res = _store.Get(command);
+                res = _store.Get(command, currTime);
                 break;
 
             case "set":
