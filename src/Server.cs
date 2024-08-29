@@ -43,10 +43,13 @@ class Program
 
         TcpServer app = serviceProvider.GetRequiredService<TcpServer>();
 
-        var startTask = Task.Run(async () => await app.StartMasterAsync());
         if (config.role == "master")
         {
-            await startTask;
+            await Task.Run(async () => await app.StartMasterAsync());
+        }
+        else 
+        {
+            await Task.Run(async () => await app.StartSlaveAsync());
         }
     }
 }

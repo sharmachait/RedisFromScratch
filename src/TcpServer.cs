@@ -78,6 +78,7 @@ class TcpServer
 
                     foreach (string[] command in commands)
                     {
+                        Console.WriteLine("Command from client: "+ string.Join(" ",command));
                         string response = await _handler.Handle(command, client);
                         client.Send(response);
                     }
@@ -85,7 +86,10 @@ class TcpServer
             }
         }
     }
-
+    public async Task StartSlaveAsync()
+    {
+        Console.WriteLine("start slave not implemented");
+    }
     //public async Task StartReplicaAsync()
     //{
     //    TcpClient master = new TcpClient();
@@ -95,7 +99,7 @@ class TcpServer
     //    master.Connect(_config.masterHost, _config.masterPort);
     //    await InitiateSlaveryAsync(master);
     //    _ = Task.Run(async () => await StartMasterPropagation(master));
-        
+
     //}
     ////done by slave instace
     ////dont need to create the slave object here

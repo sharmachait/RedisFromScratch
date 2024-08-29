@@ -61,12 +61,12 @@ public class CommandHandler
                 res = "+PONG\r\n";
                 break;
 
-            //case "echo":
-            //    res = $"+{command[1]}\r\n";
-            //    break;
+            case "echo":
+                res = $"+{command[1]}\r\n";
+                break;
 
             //case "get":
-                
+
             //    foreach(string c in command)
             //    {
             //        Console.Write(c + " ");
