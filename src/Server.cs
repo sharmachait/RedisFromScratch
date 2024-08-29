@@ -45,11 +45,11 @@ class Program
 
         if (config.role == "master")
         {
-            await Task.Run(async () => await app.StartMasterAsync());
+            await app.StartMasterAsync();
         }
         else 
         {
-            await Task.Run(async () => await app.StartSlaveAsync());
+            await app.StartSlaveAsync();
         }
     }
 }
