@@ -9,7 +9,7 @@ using System.Text;
 
 class TcpServer
 {
-    public readonly TcpListener _server;
+    public  TcpListener _server;
     private readonly RespParser _parser;
     private readonly CommandHandler _handler;
     private readonly RedisConfig _config;
@@ -41,8 +41,9 @@ class TcpServer
 
     public async Task StartMasterAsync()
     {
-        using (_server)
+        using (TcpListener server = new TcpListener(IPAddress.Any, _config.port))
         {
+            _server = server;
             _server.Start();
 
             Console.WriteLine($"Server started at {_config.port}");
