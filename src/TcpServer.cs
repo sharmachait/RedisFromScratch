@@ -100,9 +100,9 @@ class TcpServer
     public async Task StartSlaveAsync()
     {
         await Task.Run(async () => await StartMasterAsync());
-        //TcpClient master = new TcpClient();
-        //master.Connect(_config.masterHost, _config.masterPort);
-        //Console.WriteLine($"Replicating from {_config.masterHost}: {_config.masterPort}");
+        TcpClient master = new TcpClient();
+        master.Connect(_config.masterHost, _config.masterPort);
+        Console.WriteLine($"Replicating from {_config.masterHost}: {_config.masterPort}");
         //await InitiateSlaveryAsync(master);
         //Task 
         //_ = Task.Run(async () => await StartMasterPropagation(master));
