@@ -99,22 +99,18 @@ class TcpServer
     
     public async Task StartSlaveAsync()
     {
-        Console.WriteLine("start slave not implemented");
+        Task masterServer = Task.Run(async () => await StartMasterAsync());
+        TcpClient master = new TcpClient();
+        master.Connect(_config.masterHost, _config.masterPort);
+        Console.WriteLine($"Replicating from {_config.masterHost}: {_config.masterPort}");
+        //await InitiateSlaveryAsync(master);
+        //Task 
+        //_ = Task.Run(async () => await StartMasterPropagation(master));
+
     }
-
-    //public async Task StartReplicaAsync()
-    //{
-    //    TcpClient master = new TcpClient();
-
-    //    Console.WriteLine($"Server started at {_config.port}");
-    //    Console.WriteLine($"Replicating from {_config.masterHost}: {_config.masterPort}");
-    //    master.Connect(_config.masterHost, _config.masterPort);
-    //    await InitiateSlaveryAsync(master);
-    //    _ = Task.Run(async () => await StartMasterPropagation(master));
-
-    //}
-    ////done by slave instace
-    ////dont need to create the slave object here
+}
+    //done by slave instace
+    //dont need to create the slave object here
     //public async Task InitiateSlaveryAsync(TcpClient client)
     //{
     //    NetworkStream stream = client.GetStream();
@@ -123,9 +119,9 @@ class TcpServer
     //    string[] pingCommand = ["PING"];
     //    Console.WriteLine($"Sending: {_parser.RespArray(pingCommand)}");
     //    await stream.WriteAsync(Encoding.UTF8.GetBytes(_parser.RespArray(pingCommand)));
-    //    string response =await reader.ReadLineAsync();
+    //    string response = await reader.ReadLineAsync();
     //    if (!"+PONG".Equals(response))
-    //        return ;
+    //        return;
     //    Console.WriteLine($"Response: {response}");
 
     //    string[] ReplconfPortCommand = ["REPLCONF", "listening-port", _config.port.ToString()];
@@ -133,7 +129,7 @@ class TcpServer
     //    await stream.WriteAsync(Encoding.UTF8.GetBytes(_parser.RespArray(ReplconfPortCommand)));
     //    response = await reader.ReadLineAsync();
     //    if (!"+OK".Equals(response))
-    //        return ;
+    //        return;
     //    Console.WriteLine($"Response: {response}");
 
     //    string[] ReplconfCapaCommand = ["REPLCONF", "capa", "psync2"];
@@ -141,7 +137,7 @@ class TcpServer
     //    await stream.WriteAsync(Encoding.UTF8.GetBytes(_parser.RespArray(ReplconfCapaCommand)));
     //    response = await reader.ReadLineAsync();
     //    if (!"+OK".Equals(response))
-    //        return ;
+    //        return;
     //    Console.WriteLine($"Response: {response}");
 
     //    Console.WriteLine("ready to process commands from master");
