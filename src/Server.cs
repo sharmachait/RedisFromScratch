@@ -48,6 +48,7 @@ class Program
         }
         else 
         {
+            Console.WriteLine("slave at " + config.port + " of "+config.masterPort +" "+ config.masterHost);
             await app.StartSlaveAsync();
         }
     }
