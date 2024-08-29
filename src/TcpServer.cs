@@ -74,8 +74,6 @@ class TcpServer
             //_server = null;
         }
     }
-
-
     public async Task HandleClientAsync(Client client)
     {
         while (client.socket.Connected)
@@ -96,24 +94,65 @@ class TcpServer
             }
         }
     }
-    
+
+    public async Task StartMasterForSlaveInstanceAsync()
+    {
+        try
+        {
+            
+
+            Console.WriteLine($"Server started at {_config.port}");
+
+            while (true)
+            {
+                TcpClient socket = await _server.AcceptTcpClientAsync();
+                //Console.WriteLine("Client id: " + id + " ***********************************");
+                id++;
+                IPEndPoint? remoteIpEndPoint = socket.Client.RemoteEndPoint as IPEndPoint;
+                if (remoteIpEndPoint == null)
+                    return;
+
+                NetworkStream stream = socket.GetStream();
+
+                Client client = new Client(socket, remoteIpEndPoint, stream, id);
+
+                _infra.clients.Add(client);
+
+                _ = Task.Run(async () => await HandleClientAsync(client));
+            }
+        }
+        finally
+        {
+            //_infra.clients.Clear();
+            //_infra.slaves.Clear();
+            //_server.Stop();
+            //_server.Dispose();
+            //_server = null;
+        }
+    }
     public async Task StartSlaveAsync()
     {
-        _ = Task.Run(async () => await StartMasterAsync());
+        _server.Start();
+        Task ServerTask = Task.Run(async () => await StartMasterForSlaveInstanceAsync());
         Console.WriteLine("connecting with master ===========================================" );
+        Task SlaveTask = Task.Run(async () => await InitiateSlaveryAsync());
 
+        await Task.WhenAll(ServerTask,SlaveTask);
+    }
+
+    public async Task InitiateSlaveryAsync()
+    {
         TcpClient master = new TcpClient();
         await master.ConnectAsync(_config.masterHost, _config.masterPort);
         Console.WriteLine($"Replicating from {_config.masterHost}: {_config.masterPort}");
-        await InitiateSlaveryAsync(master);
+        await HandShake(master);
         //Task 
         //_ = Task.Run(async () => await StartMasterPropagation(master));
-
     }
 
     //done by slave instace
     //dont need to create the slave object here
-    public async Task InitiateSlaveryAsync(TcpClient client)
+    public async Task HandShake(TcpClient client)
     {
         NetworkStream stream = client.GetStream();
         StreamReader reader = new StreamReader(stream, Encoding.UTF8);
