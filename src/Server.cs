@@ -20,7 +20,6 @@ class Program
                     break;
                 case "--replicaof":
                     config.role = "slave";
-                    Console.WriteLine(args[i + 1]);
                     string masterHost = args[i + 1].Split(' ')[0];
                     int masterPort = int.Parse(args[i + 1].Split(' ')[1]);
                     config.masterHost = masterHost;
