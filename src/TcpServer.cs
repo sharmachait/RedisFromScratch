@@ -168,21 +168,27 @@ class TcpServer
         }
         Console.WriteLine($"Response: {response}");
 
-        //string[] ReplconfPortCommand = ["REPLCONF", "listening-port", _config.port.ToString()];
-        //Console.WriteLine($"Sending: {_parser.RespArray(ReplconfPortCommand)}");
-        //await stream.WriteAsync(Encoding.UTF8.GetBytes(_parser.RespArray(ReplconfPortCommand)));
-        //response = await reader.ReadLineAsync();
-        //if (!"+OK".Equals(response))
-        //    return;
-        //Console.WriteLine($"Response: {response}");
+        string[] ReplconfPortCommand = ["REPLCONF", "listening-port", _config.port.ToString()];
+        Console.WriteLine($"Sending: {_parser.RespArray(ReplconfPortCommand)}");
+        await stream.WriteAsync(Encoding.UTF8.GetBytes(_parser.RespArray(ReplconfPortCommand)));
+        response = await reader.ReadLineAsync();
+        if (!"+OK".Equals(response))
+        {
+            Console.WriteLine(response);
+            return;
+        }
+        Console.WriteLine($"Response: {response}");
 
-        //string[] ReplconfCapaCommand = ["REPLCONF", "capa", "psync2"];
-        //Console.WriteLine($"Sending: {_parser.RespArray(ReplconfCapaCommand)}");
-        //await stream.WriteAsync(Encoding.UTF8.GetBytes(_parser.RespArray(ReplconfCapaCommand)));
-        //response = await reader.ReadLineAsync();
-        //if (!"+OK".Equals(response))
-        //    return;
-        //Console.WriteLine($"Response: {response}");
+        string[] ReplconfCapaCommand = ["REPLCONF", "capa", "psync2"];
+        Console.WriteLine($"Sending: {_parser.RespArray(ReplconfCapaCommand)}");
+        await stream.WriteAsync(Encoding.UTF8.GetBytes(_parser.RespArray(ReplconfCapaCommand)));
+        response = await reader.ReadLineAsync();
+        if (!"+OK".Equals(response))
+        {
+            Console.WriteLine(response);
+            return;
+        }
+        Console.WriteLine($"Response: {response}");
 
         //Console.WriteLine("ready to process commands from master");
 
