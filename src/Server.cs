@@ -35,14 +35,18 @@ class Program
         var serviceProvider = new ServiceCollection()
             .AddSingleton(config)
             .AddSingleton<Store>()
-            //.AddSingleton<Infra>()
-            //.AddSingleton<RespParser>()
-            //.AddSingleton<CommandHandler>()
-            //.AddSingleton<TcpServer>()
+            .AddSingleton<Infra>()
+            .AddSingleton<RespParser>()
+            .AddSingleton<CommandHandler>()
+            .AddSingleton<TcpServer>()
             .BuildServiceProvider();
 
-        TcpListener server = new TcpListener(IPAddress.Any, 6379);
-        server.Start();
-        TcpClient socket =await server.AcceptTcpClientAsync(); // wait for client
+        TcpServer app = serviceProvider.GetRequiredService<TcpServer>();
+
+        var startTask = Task.Run(async () => await app.StartMasterAsync());
+        if (config.role == "master")
+        {
+            await startTask;
+        }
     }
 }
