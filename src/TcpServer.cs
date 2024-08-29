@@ -158,7 +158,7 @@ class TcpServer
         StreamReader reader = new StreamReader(stream, Encoding.UTF8);
 
         string[] pingCommand = ["PING"];
-        //Console.WriteLine($"Sending: {_parser.RespArray(pingCommand)}");
+        
         stream.Write(Encoding.UTF8.GetBytes(_parser.RespArray(pingCommand)));
         string response = reader.ReadLine();
         if (!"+PONG".Equals(response))
@@ -169,7 +169,7 @@ class TcpServer
         Console.WriteLine($"Response: {response}");
 
         string[] ReplconfPortCommand = ["REPLCONF", "listening-port", _config.port.ToString()];
-        Console.WriteLine($"Sending: {_parser.RespArray(ReplconfPortCommand)}");
+        
         await stream.WriteAsync(Encoding.UTF8.GetBytes(_parser.RespArray(ReplconfPortCommand)));
         response = await reader.ReadLineAsync();
         if (!"+OK".Equals(response))
@@ -180,7 +180,7 @@ class TcpServer
         Console.WriteLine($"Response: {response}");
 
         string[] ReplconfCapaCommand = ["REPLCONF", "capa", "psync2"];
-        Console.WriteLine($"Sending: {_parser.RespArray(ReplconfCapaCommand)}");
+        
         await stream.WriteAsync(Encoding.UTF8.GetBytes(_parser.RespArray(ReplconfCapaCommand)));
         response = await reader.ReadLineAsync();
         if (!"+OK".Equals(response))
