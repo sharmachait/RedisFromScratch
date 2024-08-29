@@ -41,7 +41,7 @@ class TcpServer
 
     public async Task StartMasterAsync()
     {
-        try
+        using (_server)
         {
             _server.Start();
 
@@ -61,14 +61,9 @@ class TcpServer
                 Client client = new Client(socket, remoteIpEndPoint, stream, id);
 
                 _infra.clients.Add(client);
-                HandleClientAsync(client);
-                //_ = Task.Run(() => );
+
+                _ = Task.Run(() => HandleClientAsync(client));
             }
-        }
-        finally
-        {
-            _server.Stop();
-            _server.Dispose();
         }
     }
 
