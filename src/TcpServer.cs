@@ -78,28 +78,25 @@ class TcpServer
 
     public async Task HandleClientAsync(Client client)
     {
-
         while (client.socket.Connected)
         {
-            //if (client.stream.DataAvailable)
-            //{
-            byte[] buffer = new byte[client.socket.ReceiveBufferSize];
-            int bytesRead = await client.stream.ReadAsync(buffer, 0, buffer.Length);
-            if (bytesRead > 0)
+            if (client.stream.DataAvailable)
             {
-                List<string[]> commands = _parser.Deserialize(buffer);
-
-                foreach (string[] command in commands)
+                byte[] buffer = new byte[client.socket.ReceiveBufferSize];
+                int bytesRead = await client.stream.ReadAsync(buffer, 0, buffer.Length);
+                if (bytesRead > 0)
                 {
-                    Console.WriteLine("*****************************************************");
-                    Console.WriteLine("Command from client: " + string.Join(" ", command));
-                    string response = await _handler.Handle(command, client, DateTime.Now);
-                    await client.SendAsync(response);
+                    List<string[]> commands = _parser.Deserialize(buffer);
+
+                    foreach (string[] command in commands)
+                    {
+                        Console.WriteLine("*****************************************************");
+                        Console.WriteLine("Command from client: " + string.Join(" ", command));
+                        string response = await _handler.Handle(command, client, DateTime.Now);
+                        await client.SendAsync(response);
+                    }
                 }
             }
-            //}
-
-
         }
     }
     
