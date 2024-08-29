@@ -108,7 +108,7 @@ class TcpServer
         //_ = Task.Run(async () => await StartMasterPropagation(master));
 
     }
-}
+
     //done by slave instace
     //dont need to create the slave object here
     //public async Task InitiateSlaveryAsync(TcpClient client)
