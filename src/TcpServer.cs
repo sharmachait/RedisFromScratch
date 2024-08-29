@@ -50,6 +50,7 @@ class TcpServer
             while (true)
             {
                 TcpClient socket = await _server.AcceptTcpClientAsync();
+                Console.WriteLine("Client id: " + id + " ***********************************");
                 id++;
                 IPEndPoint? remoteIpEndPoint = socket.Client.RemoteEndPoint as IPEndPoint;
                 if (remoteIpEndPoint == null)
@@ -61,7 +62,7 @@ class TcpServer
 
                 _infra.clients.Add(client);
 
-                _ = Task.Run(async () => await HandleClientAsync(client));
+                _ = Task.Run(() => HandleClientAsync(client));
             }
         }
         finally
