@@ -67,11 +67,11 @@ class TcpServer
         }
         finally
         {
-            _infra.clients.Clear();
-            _infra.slaves.Clear();
-            _server.Stop();
-            _server.Dispose();
-            _server = null;
+            //_infra.clients.Clear();
+            //_infra.slaves.Clear();
+            //_server.Stop();
+            //_server.Dispose();
+            //_server = null;
         }
     }
 
