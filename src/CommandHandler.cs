@@ -1,5 +1,6 @@
 ﻿using codecrafters_redis;
 using System.Collections;
+using System.Collections.Concurrent;
 using System.Net;
 using System.Text;
 
@@ -50,14 +51,13 @@ public class CommandHandler
     //    return _store.Set(command, currTime);
     //}
 
-    public async Task<string> Handle(string[] command, Client client, DateTime currTime)
+    public async Task<ResponseDTO> Handle(string[] command, Client client, DateTime currTime)
     {
 
         string cmd = command[0];
-
         
         string res = "";
-
+        byte[]? data = null;
         switch (cmd)
         {
             case "ping":
@@ -74,8 +74,8 @@ public class CommandHandler
                 break;
 
             case "set":
-                res = Set(client.remoteIpEndPoint, command);
-                //_ = Task.Run(async () => await sendCommandToSlaves(_infra.slaves, command));
+                res = _store.Set(command);
+                _ = Task.Run(async () => await sendCommandToSlaves(_infra.slaves, command));
                 break;
 
             case "info":
@@ -87,7 +87,9 @@ public class CommandHandler
                 break;
 
             case "psync":
-                res = await Psync(command, client);
+                ResponseDTO response = Psync(command, client);
+                res = response.response;
+                data = response.data;
                 break;
 
             default:
@@ -95,41 +97,39 @@ public class CommandHandler
                 break;
         }
 
-        return res;
+        return new ResponseDTO(res,data);
     }
 
-    public string Set(IPEndPoint remoteIpEndPoint, string[] command)
-    {
-        //if (_config.role.Equals("slave"))
-        //{
-        //    string clientIpAddress = remoteIpEndPoint.Address.ToString();
-        //    int clientPort = remoteIpEndPoint.Port;
-
-        //    if (_config.masterHost.Equals(clientIpAddress))
-        //    {
-        //        return _store.Set(command, currTime);
-        //    }
-        //    else
-        //    {
-        //        return _parser.RespBulkString("READONLY You can't write against a read only replica.");
-        //    }
-        //}
-        var res = _store.Set(command);
-
-        return res;
-    }
-    //public async Task sendCommandToSlaves(List<Slave> slaves, string[] command)
+    //public string Set(IPEndPoint remoteIpEndPoint, string[] command)
     //{
-    //    // add support for the use of eof and psync2 capabilities
-    //    foreach (Slave slave in slaves)
-    //    {
-    //        string commandRespString = _parser.RespArray(command);
-    //        Console.WriteLine(commandRespString);
-    //        await slave.connection.SendAsync(commandRespString);
-    //    }
+    //    //if (_config.role.Equals("slave"))
+    //    //{
+    //    //    string clientIpAddress = remoteIpEndPoint.Address.ToString();
+    //    //    int clientPort = remoteIpEndPoint.Port;
+
+    //    //    if (_config.masterHost.Equals(clientIpAddress))
+    //    //    {
+    //    //        return _store.Set(command, currTime);
+    //    //    }
+    //    //    else
+    //    //    {
+    //    //        return _parser.RespBulkString("READONLY You can't write against a read only replica.");
+    //    //    }
+    //    //}
+    //    var res = _store.Set(command);
+
+    //    return res;
     //}
-
-
+    public async Task sendCommandToSlaves(ConcurrentBag<Slave> slaves, string[] command)
+    {
+        // add support for the use of eof and psync2 capabilities
+        foreach (Slave slave in slaves)
+        {
+            string commandRespString = _parser.RespArray(command);
+            
+            await slave.connection.SendAsync(commandRespString);
+        }
+    }
 
 
     public string Info(string[] command)
@@ -162,6 +162,7 @@ public class CommandHandler
 
         return _parser.RespBulkString(replicationData);
     }
+
 
     public string ReplConf(string[] command, Client client)
     {
@@ -208,8 +209,7 @@ public class CommandHandler
     }
 
 
-
-    public async Task<string> Psync(string[] command, Client client)
+    public ResponseDTO Psync(string[] command, Client client)
     {
         // add support for the use of eof and psync2 capabilities
         try
@@ -233,22 +233,18 @@ public class CommandHandler
                         .Concat(rdbFile)
                         .ToArray();
 
-                await client.SendAsync(
-                    $"+FULLRESYNC {_config.masterReplId} {_config.masterReplOffset}\r\n",
-                    rdbResynchronizationFileMsg
-                );
-
-                return "";
+                string res = $"+FULLRESYNC {_config.masterReplId} {_config.masterReplOffset}\r\n";
+                return new ResponseDTO(res,rdbResynchronizationFileMsg);
             }
             else
             {
-                return "Options not supported";
+                return new ResponseDTO("Options not supported");
             }
         }
         catch (Exception e)
         {
             Console.WriteLine(e.Message);
-            return "Options not supported";
+            return new ResponseDTO("Options not supported");
         }
     }
 }

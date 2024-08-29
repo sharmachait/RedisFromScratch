@@ -88,8 +88,12 @@ class TcpServer
                 {
                     Console.WriteLine("*****************************************************");
                     Console.WriteLine("Command from client: " + string.Join(" ", command));
-                    string response = await _handler.Handle(command, client, DateTime.Now);
-                    client.Send(response);
+                    ResponseDTO response = await _handler.Handle(command, client, DateTime.Now);
+                    client.Send(response.response);
+                    if (response.data != null)
+                    {
+                        client.Send(response.data);
+                    }
                 }
             }
         }
@@ -177,8 +181,8 @@ class TcpServer
         TcpClient master = new TcpClient();
         await master.ConnectAsync(_config.masterHost, _config.masterPort);
         Console.WriteLine($"Replicating from {_config.masterHost}: {_config.masterPort}");
-        await HandShake(master);
-        //Task 
+        HandShake(master);
+        //StartMasterPropagation(master);
         //_ = Task.Run(async () => await StartMasterPropagation(master));
     }
 
