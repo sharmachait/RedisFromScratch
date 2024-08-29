@@ -39,29 +39,65 @@ class TcpServer
     }
 
 
-    public async Task StartMasterAsync()
+    public async Task StartMasterAsync(CancellationToken cancellationToken)
     {
-        _server.Start();
-        
-        Console.WriteLine($"Server started at {_config.port}");
-
-        while (true)
+        try
         {
-            TcpClient socket = await _server.AcceptTcpClientAsync();
-            id++;
-            IPEndPoint? remoteIpEndPoint = socket.Client.RemoteEndPoint as IPEndPoint;
-            if (remoteIpEndPoint == null)
-                return;
+            _server.Start();
 
-            NetworkStream stream = socket.GetStream();
+            Console.WriteLine($"Server started at {_config.port}");
 
-            Client client = new Client(socket, remoteIpEndPoint, stream, id);
+            while (!cancellationToken.IsCancellationRequested)
+            {
+                try
+                {
+                    TcpClient socket = await _server.AcceptTcpClientAsync();
+                    id++;
 
-            _infra.clients.Add(client);
+                    if (socket.Client.RemoteEndPoint is not IPEndPoint remoteIpEndPoint)
+                    {
+                        socket.Close();
+                        continue;
+                    }
 
-            _ = Task.Run(async () => await HandleClientAsync(client));
+                    NetworkStream stream = socket.GetStream();
+
+                    Client client = new Client(socket, remoteIpEndPoint, stream, id);
+                    _infra.clients.Add(client);
+
+                    _ = Task.Run(async () =>
+                    {
+                        try
+                        {
+                            await HandleClientAsync(client);
+                        }
+                        catch (Exception ex)
+                        {
+                            // Handle client-specific exceptions
+                            Console.WriteLine($"Error handling client: {ex.Message}");
+                        }
+                        finally
+                        {
+                            // Clean up after client disconnection
+                            socket.Close();
+                            _infra.clients.Remove(client);
+                        }
+                    });
+                }
+                catch (Exception ex)
+                {
+                    // Handle exceptions related to accepting clients
+                    Console.WriteLine($"Error accepting client: {ex.Message}");
+                }
+            }
+        }
+        finally
+        {
+            _server.Stop();
+            _server.Dispose();
         }
     }
+
 
     public async Task HandleClientAsync(Client client)
     {
