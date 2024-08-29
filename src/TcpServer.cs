@@ -91,7 +91,7 @@ class TcpServer
                     //Console.WriteLine("*****************************************************");
                     //Console.WriteLine("Command from client: " + string.Join(" ", command));
                     string response = await _handler.Handle(command, client, DateTime.Now);
-                    await client.SendAsync(response);
+                    client.Send(response);
                 }
             }
         }
@@ -118,10 +118,13 @@ class TcpServer
 
         string[] pingCommand = ["PING"];
         Console.WriteLine($"Sending: {_parser.RespArray(pingCommand)}");
-        await stream.WriteAsync(Encoding.UTF8.GetBytes(_parser.RespArray(pingCommand)));
-        string response = await reader.ReadLineAsync();
+        stream.Write(Encoding.UTF8.GetBytes(_parser.RespArray(pingCommand)));
+        string response = reader.ReadLine();
         if (!"+PONG".Equals(response))
+        {
+            Console.WriteLine(response);
             return;
+        }
         Console.WriteLine($"Response: {response}");
 
         //string[] ReplconfPortCommand = ["REPLCONF", "listening-port", _config.port.ToString()];
