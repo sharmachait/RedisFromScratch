@@ -60,18 +60,18 @@ class TcpServer
 
                 Client client = new Client(socket, remoteIpEndPoint, stream, id);
 
-                //_infra.clients.Add(client);
+                _infra.clients.Add(client);
 
                 _ = Task.Run(async () => await HandleClientAsync(client));
             }
         }
         finally
         {
-            //_infra.clients.Clear();
-            //_infra.slaves.Clear();
-            //_server.Stop();
-            //_server.Dispose();
-            //_server = null;
+            _infra.clients.Clear();
+            _infra.slaves.Clear();
+            _server.Stop();
+            _server.Dispose();
+            _server = null;
         }
     }
 
