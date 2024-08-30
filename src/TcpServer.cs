@@ -212,7 +212,7 @@ class TcpServer
 
         string[] ReplconfCapaCommand = ["REPLCONF", "capa", "psync2"];
         
-        await stream.WriteAsync(Encoding.UTF8.GetBytes(_parser.RespArray(ReplconfCapaCommand)));
+        stream.Write(Encoding.UTF8.GetBytes(_parser.RespArray(ReplconfCapaCommand)));
         buffer = new byte[client.ReceiveBufferSize];
         bytesRead = stream.Read(buffer, 0, buffer.Length);
         response = Encoding.UTF8.GetString(buffer);
@@ -221,10 +221,12 @@ class TcpServer
 
         string[] PsyncCommand = ["PSYNC", "?", "-1"];
 
-        await stream.WriteAsync(Encoding.UTF8.GetBytes(_parser.RespArray(PsyncCommand)));
+        stream.Write(Encoding.UTF8.GetBytes(_parser.RespArray(PsyncCommand)));
         buffer = new byte[client.ReceiveBufferSize];
         bytesRead = stream.Read(buffer, 0, buffer.Length);
         response = Encoding.UTF8.GetString(buffer);
+        Console.WriteLine("REPLCONF response *********************************************************************************");
+        Console.WriteLine($"bytes read: {bytesRead}");
         Console.WriteLine($"Response: {response}");
 
     }
