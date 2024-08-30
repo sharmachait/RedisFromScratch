@@ -195,79 +195,34 @@ class TcpServer
         string[] pingCommand = ["PING"];
         
         stream.Write(Encoding.UTF8.GetBytes(_parser.RespArray(pingCommand)));
-        string response = reader.ReadLine();
-        if (!"+PONG".Equals(response))
-        {
-            Console.WriteLine(response);
-            return;
-        }
+        byte[] buffer = new byte[client.ReceiveBufferSize];
+        int bytesRead = stream.Read(buffer, 0, buffer.Length);
+        string response = Encoding.UTF8.GetString(buffer);
         Console.WriteLine($"Response: {response}");
 
         string[] ReplconfPortCommand = ["REPLCONF", "listening-port", _config.port.ToString()];
         
-        await stream.WriteAsync(Encoding.UTF8.GetBytes(_parser.RespArray(ReplconfPortCommand)));
-        response = await reader.ReadLineAsync();
-        if (!"+OK".Equals(response))
-        {
-            Console.WriteLine(response);
-            return;
-        }
+        stream.Write(Encoding.UTF8.GetBytes(_parser.RespArray(ReplconfPortCommand)));
+        buffer = new byte[client.ReceiveBufferSize];
+        bytesRead = stream.Read(buffer, 0, buffer.Length);
+        response = Encoding.UTF8.GetString(buffer);
         Console.WriteLine($"Response: {response}");
 
         string[] ReplconfCapaCommand = ["REPLCONF", "capa", "psync2"];
         
         await stream.WriteAsync(Encoding.UTF8.GetBytes(_parser.RespArray(ReplconfCapaCommand)));
-        response = await reader.ReadLineAsync();
-        if (!"+OK".Equals(response))
-        {
-            Console.WriteLine(response);
-            return;
-        }
+        buffer = new byte[client.ReceiveBufferSize];
+        bytesRead = stream.Read(buffer, 0, buffer.Length);
+        response = Encoding.UTF8.GetString(buffer);
         Console.WriteLine($"Response: {response}");
-
-        //Console.WriteLine("ready to process commands from master");
 
         string[] PsyncCommand = ["PSYNC", "?", "-1"];
+
         await stream.WriteAsync(Encoding.UTF8.GetBytes(_parser.RespArray(PsyncCommand)));
-        response = reader.ReadLine();
-        Console.WriteLine("Read Full resync *********************************************************************************");
+        buffer = new byte[client.ReceiveBufferSize];
+        bytesRead = stream.Read(buffer, 0, buffer.Length);
+        response = Encoding.UTF8.GetString(buffer);
         Console.WriteLine($"Response: {response}");
-        StringBuilder lengthBuilder = new StringBuilder();
-        int readByte;
-        while ((readByte = stream.ReadByte()) != -1)
-        {
-            char c = (char)readByte;
-            if (c == '\r')
-                continue;
-            if (c == '\n')
-                break;
-
-            lengthBuilder.Append(c);
-        }
-
-        int messageLength = int.Parse(lengthBuilder.ToString().TrimStart('$'));
-
-        // Step 2: Read the specified number of bytes
-        byte[] messageBuffer = new byte[messageLength];
-        int totalBytesRead = 0;
-        while (totalBytesRead < messageLength)
-        {
-            int bytesRead = stream.Read(messageBuffer, totalBytesRead, messageLength - totalBytesRead);
-            if (bytesRead == 0)
-            {
-                // Connection closed or end of stream
-                break;
-            }
-            totalBytesRead += bytesRead;
-        }
-
-        Console.WriteLine("Read Full resync *********************************************************************************");
-        Console.WriteLine($"Response: {messageBuffer}");
-
-        //if (response == null || !"+FULLRESYNC".Equals(response.Substring(0, response.IndexOf(" "))))
-        //    return null;
-
-        //do multi thread to listen from master
 
     }
     public async Task StartMasterPropagation(TcpClient ConnectionWithMaster)
