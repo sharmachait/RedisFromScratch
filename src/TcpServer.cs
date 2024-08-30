@@ -179,33 +179,67 @@ class TcpServer
         NetworkStream stream = client.GetStream();
         StreamReader reader = new StreamReader(stream, Encoding.UTF8);
 
-        string[] pingCommand = ["PING"];
-        
-        stream.Write(Encoding.UTF8.GetBytes(_parser.RespArray(pingCommand)));
-        byte[] buffer = new byte[client.ReceiveBufferSize];
-        int bytesRead = stream.Read(buffer, 0, buffer.Length);
+        var lenListeningPort = _config.port.ToString().Length;
+        var listeningPort = _config.port.ToString();
+        var mystrings =
+            new string[] { "*1\r\n$4\r\nPING\r\n",
+                     "*3\r\n$8\r\nREPLCONF\r\n$14\r\nlistening-port\r\n$" +
+                         lenListeningPort.ToString() + "\r\n" + listeningPort +
+                         "\r\n",
+                     "*3\r\n$8\r\nREPLCONF\r\n$4\r\ncapa\r\n$6\r\npsync2\r\n",
+                     "*3\r\n$5\r\nPSYNC\r\n$1\r\n?\r\n$2\r\n-1\r\n" };
+        var buffer = new byte[1024];
+        foreach (var part in mystrings)
+        {
+            Console.WriteLine($"Sending: {part}");
+            byte[] data = Encoding.ASCII.GetBytes(part);
+            stream.Write(data);
+            //await client.SendAsync(data);
+            stream.Read(buffer, 0, buffer.Length);
+            //await client.ReceiveAsync(buffer);
+            var response = Encoding.ASCII.GetString(buffer);
+            Console.WriteLine($"Response: {response}");
+            // if response starts with +FULLRESYNC, await the redis file
+            // if (response.ToLower().Contains("+fullresync"))
+            // {
+            //   Console.WriteLine("Receiving full resync");
+            //   _ = Task.Run(async () => {
+            //     var buffer = new byte[1024];
+            //     await client.ReceiveAsync(buffer);
+            //     response = Encoding.ASCII.GetString(buffer);
+            //     Console.WriteLine($"Response: {response}");
+            //   });
+            // }
+        }
 
-        string[] ReplconfPortCommand = ["REPLCONF", "listening-port", _config.port.ToString()];
-        
-        stream.Write(Encoding.UTF8.GetBytes(_parser.RespArray(ReplconfPortCommand)));
-        buffer = new byte[client.ReceiveBufferSize];
-        bytesRead = stream.Read(buffer, 0, buffer.Length);
-        
-        string[] ReplconfCapaCommand = ["REPLCONF", "capa", "psync2"];
-        
-        stream.Write(Encoding.UTF8.GetBytes(_parser.RespArray(ReplconfCapaCommand)));
-        buffer = new byte[client.ReceiveBufferSize];
-        bytesRead = stream.Read(buffer, 0, buffer.Length);
-        
-        string[] PsyncCommand = ["PSYNC", "?", "-1"];
 
-        stream.Write(Encoding.UTF8.GetBytes(_parser.RespArray(PsyncCommand)));
-        buffer = new byte[client.ReceiveBufferSize];
-        bytesRead = stream.Read(buffer, 0, buffer.Length);
-        string response = Encoding.UTF8.GetString(buffer);
-        Console.WriteLine("psync response full resync *********************************************************************************");
-        Console.WriteLine($"bytes read: {bytesRead}");
-        Console.WriteLine($"Response: {response}");
+        //string[] pingCommand = ["PING"];
+        
+        //stream.Write(Encoding.UTF8.GetBytes(_parser.RespArray(pingCommand)));
+        //byte[] buffer = new byte[client.ReceiveBufferSize];
+        //int bytesRead = stream.Read(buffer, 0, buffer.Length);
+
+        //string[] ReplconfPortCommand = ["REPLCONF", "listening-port", _config.port.ToString()];
+        
+        //stream.Write(Encoding.UTF8.GetBytes(_parser.RespArray(ReplconfPortCommand)));
+        //buffer = new byte[client.ReceiveBufferSize];
+        //bytesRead = stream.Read(buffer, 0, buffer.Length);
+        
+        //string[] ReplconfCapaCommand = ["REPLCONF", "capa", "psync2"];
+        
+        //stream.Write(Encoding.UTF8.GetBytes(_parser.RespArray(ReplconfCapaCommand)));
+        //buffer = new byte[client.ReceiveBufferSize];
+        //bytesRead = stream.Read(buffer, 0, buffer.Length);
+        
+        //string[] PsyncCommand = ["PSYNC", "?", "-1"];
+
+        //stream.Write(Encoding.UTF8.GetBytes(_parser.RespArray(PsyncCommand)));
+        //buffer = new byte[client.ReceiveBufferSize];
+        //bytesRead = stream.Read(buffer, 0, buffer.Length);
+        //string response = Encoding.UTF8.GetString(buffer);
+        //Console.WriteLine("psync response full resync *********************************************************************************");
+        //Console.WriteLine($"bytes read: {bytesRead}");
+        //Console.WriteLine($"Response: {response}");
 
         //buffer = new byte[client.ReceiveBufferSize];
         //bytesRead = stream.Read(buffer, 0, buffer.Length);
