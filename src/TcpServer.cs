@@ -248,20 +248,18 @@ class TcpServer
         NetworkStream stream = ConnectionWithMaster.GetStream();
         while (ConnectionWithMaster.Connected)
         {
-            if (stream.DataAvailable)
-            {
-                byte[] buffer = new byte[ConnectionWithMaster.ReceiveBufferSize];
-                int bytesRead = await stream.ReadAsync(buffer, 0, buffer.Length);
-                Console.WriteLine("Read Command from master *********************************************************************************");
-                if (bytesRead > 0)
-                {
-                    List<string[]> commands = _parser.Deserialize(buffer.Take(bytesRead).ToArray());
 
-                    foreach (string[] command in commands)
-                    {
-                        Console.WriteLine("Command from master: " + string.Join(" ", command));
-                        string response = await _handler.HandleCommandsFromMaster(command);
-                    }
+            byte[] buffer = new byte[ConnectionWithMaster.ReceiveBufferSize];
+            int bytesRead = await stream.ReadAsync(buffer, 0, buffer.Length);
+            Console.WriteLine("Read Command from master *********************************************************************************");
+            if (bytesRead > 0)
+            {
+                List<string[]> commands = _parser.Deserialize(buffer.Take(bytesRead).ToArray());
+
+                foreach (string[] command in commands)
+                {
+                    Console.WriteLine("Command from master: " + string.Join(" ", command));
+                    string response = await _handler.HandleCommandsFromMaster(command);
                 }
             }
         }
