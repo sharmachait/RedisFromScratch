@@ -1,7 +1,9 @@
 ﻿using codecrafters_redis;
 using System.Collections;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Net;
+using System.Net.Sockets;
 using System.Text;
 
 namespace codecrafters_redis;
@@ -72,7 +74,7 @@ public class CommandHandler
                 break;
 
             case "set":
-                res = _store.Set(command);
+                res = Set(client, command);
                 _ = Task.Run(async () => await sendCommandToSlaves(_infra.slaves, command));
                 break;
 
@@ -98,26 +100,28 @@ public class CommandHandler
         return new ResponseDTO(res,data);
     }
 
-    //public string Set(IPEndPoint remoteIpEndPoint, string[] command)
-    //{
-    //    //if (_config.role.Equals("slave"))
-    //    //{
-    //    //    string clientIpAddress = remoteIpEndPoint.Address.ToString();
-    //    //    int clientPort = remoteIpEndPoint.Port;
+    public string Set(Client client, string[] command)
+    {
+        
+        IPEndPoint remoteEndPoint = client.socket.Client.RemoteEndPoint as IPEndPoint;
+        if (_config.role.Equals("slave"))
+        {
+            string clientIpAddress = remoteEndPoint.Address.ToString();
+            int clientPort = remoteEndPoint.Port;
 
-    //    //    if (_config.masterHost.Equals(clientIpAddress))
-    //    //    {
-    //    //        return _store.Set(command, currTime);
-    //    //    }
-    //    //    else
-    //    //    {
-    //    //        return _parser.RespBulkString("READONLY You can't write against a read only replica.");
-    //    //    }
-    //    //}
-    //    var res = _store.Set(command);
+            if (_config.masterHost.Equals(clientIpAddress))
+            {
+                return _store.Set(command);
+            }
+            else
+            {
+                return _parser.RespBulkString("READONLY You can't write against a read only replica.");
+            }
+        }
+        var res = _store.Set(command);
 
-    //    return res;
-    //}
+        return res;
+    }
     public async Task sendCommandToSlaves(ConcurrentBag<Slave> slaves, string[] command)
     {
         // add support for the use of eof and psync2 capabilities

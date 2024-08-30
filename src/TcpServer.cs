@@ -50,7 +50,6 @@ class TcpServer
             while (true)
             {
                 TcpClient socket = await _server.AcceptTcpClientAsync();
-                //Console.WriteLine("Client id: " + id + " ***********************************");
                 id++;
                 IPEndPoint? remoteIpEndPoint = socket.Client.RemoteEndPoint as IPEndPoint;
                 if (remoteIpEndPoint == null)
@@ -86,8 +85,6 @@ class TcpServer
 
                 foreach (string[] command in commands)
                 {
-                    //Console.WriteLine("*****************************************************************************************");
-                    //Console.WriteLine("Command from client: " + string.Join(" ", command));
                     ResponseDTO response = await _handler.Handle(command, client, DateTime.Now);
                     client.Send(response.response);
                     if (response.data != null)
@@ -130,16 +127,10 @@ class TcpServer
     public async Task StartSlaveAsync()
     {
         _server.Start();
-
-        // Start a new thread for InitiateSlaveryAsync.
+        
         Thread slaveThread = new Thread(async () => await InitiateSlaveryAsync());
         slaveThread.Start();
-
-        // StartMasterForSlaveInstanceAsync runs on the current thread.
         await StartMasterForSlaveInstanceAsync();
-
-        // The thread for InitiateSlaveryAsync will continue running in the background.
-        // You do not need to join it if StartMasterForSlaveInstanceAsync has an infinite loop.
     }
 
     public async Task StartMasterForSlaveInstanceAsync()
@@ -151,7 +142,6 @@ class TcpServer
             while (true)
             {
                 TcpClient socket = await _server.AcceptTcpClientAsync();
-                //Console.WriteLine("Client id: " + id + " ***********************************");
                 id++;
                 IPEndPoint? remoteIpEndPoint = socket.Client.RemoteEndPoint as IPEndPoint;
                 if (remoteIpEndPoint == null)
@@ -183,10 +173,7 @@ class TcpServer
         Console.WriteLine($"Replicating from {_config.masterHost}: {_config.masterPort}");
         HandShake(master);
         StartMasterPropagation(master);
-        //_ = Task.Run(async () => await StartMasterPropagation(master));
     }
-    //done by slave instace
-    //dont need to create the slave object here
     public async Task HandShake(TcpClient client)
     {
         NetworkStream stream = client.GetStream();
@@ -197,34 +184,25 @@ class TcpServer
         stream.Write(Encoding.UTF8.GetBytes(_parser.RespArray(pingCommand)));
         byte[] buffer = new byte[client.ReceiveBufferSize];
         int bytesRead = stream.Read(buffer, 0, buffer.Length);
-        string response = Encoding.UTF8.GetString(buffer);
-        Console.WriteLine("PING response *********************************************************************************");
-        Console.WriteLine($"Response: {response}");
 
         string[] ReplconfPortCommand = ["REPLCONF", "listening-port", _config.port.ToString()];
         
         stream.Write(Encoding.UTF8.GetBytes(_parser.RespArray(ReplconfPortCommand)));
         buffer = new byte[client.ReceiveBufferSize];
         bytesRead = stream.Read(buffer, 0, buffer.Length);
-        response = Encoding.UTF8.GetString(buffer);
-        Console.WriteLine("REPLCONF response *********************************************************************************");
-        Console.WriteLine($"Response: {response}");
-
+        
         string[] ReplconfCapaCommand = ["REPLCONF", "capa", "psync2"];
         
         stream.Write(Encoding.UTF8.GetBytes(_parser.RespArray(ReplconfCapaCommand)));
         buffer = new byte[client.ReceiveBufferSize];
         bytesRead = stream.Read(buffer, 0, buffer.Length);
-        response = Encoding.UTF8.GetString(buffer);
-        Console.WriteLine("REPLCONF response *********************************************************************************");
-        Console.WriteLine($"Response: {response}");
-
+        
         string[] PsyncCommand = ["PSYNC", "?", "-1"];
 
         stream.Write(Encoding.UTF8.GetBytes(_parser.RespArray(PsyncCommand)));
         buffer = new byte[client.ReceiveBufferSize];
         bytesRead = stream.Read(buffer, 0, buffer.Length);
-        response = Encoding.UTF8.GetString(buffer);
+        string response = Encoding.UTF8.GetString(buffer);
         Console.WriteLine("psync response full resync *********************************************************************************");
         Console.WriteLine($"bytes read: {bytesRead}");
         Console.WriteLine($"Response: {response}");
@@ -241,15 +219,12 @@ class TcpServer
     }
     public async Task StartMasterPropagation(TcpClient ConnectionWithMaster)
     {
-        Console.WriteLine("started master propagration *********************************************************************************");
         NetworkStream stream = ConnectionWithMaster.GetStream();
         while (ConnectionWithMaster.Connected)
         {
 
             byte[] buffer = new byte[ConnectionWithMaster.ReceiveBufferSize];
             int bytesRead = await stream.ReadAsync(buffer, 0, buffer.Length);
-            Console.WriteLine("Read Command from master *********************************************************************************");
-            Console.WriteLine(bytesRead+"*********************************************************************************");
             if (bytesRead > 0)
             {
                 List<string[]> commands = _parser.Deserialize(buffer.Take(bytesRead).ToArray());
