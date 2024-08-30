@@ -32,7 +32,6 @@ public class CommandHandler
         switch (cmd)
         {
             case "set":
-                Console.WriteLine("hi ************************************************************************");
                 res = _store.Set(command);
                 _ = Task.Run(() => sendCommandToSlaves(_infra.slaves, command));
                 break;

@@ -12,7 +12,8 @@ public class RespParser
     public List<string[]> Deserialize(byte[] command)
     {
         string _data = Encoding.UTF8.GetString(command);
-        _data = _data.Substring(0, _data.IndexOf('\0'));
+        //Console.WriteLine(_data);
+        //_data = _data.Substring(0, _data.IndexOf('\0'));
 
         string[] commands = _data.Split('*');
 

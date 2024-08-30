@@ -4,11 +4,11 @@ namespace codecrafters_redis;
 
 public class Store
 {
-    private ConcurrentDictionary<string, Value> map;
+    private Dictionary<string, Value> map;
 
     public Store()
     {
-        map = new ConcurrentDictionary<string, Value>();
+        map = new Dictionary<string, Value>();
     }
 
 
@@ -53,7 +53,7 @@ public class Store
             else
             {
                 
-                map.TryRemove(command[1],out _);
+                map.Remove(command[1]);
                 return $"$-1\r\n";
             }
         }
@@ -65,7 +65,8 @@ public class Store
     }
 }
 
-public class Value {
+public class Value 
+{
     public string val;
     public DateTime created;
     public DateTime expiry;

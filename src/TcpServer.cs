@@ -225,10 +225,16 @@ class TcpServer
         buffer = new byte[client.ReceiveBufferSize];
         bytesRead = stream.Read(buffer, 0, buffer.Length);
         response = Encoding.UTF8.GetString(buffer);
-        Console.WriteLine("REPLCONF response *********************************************************************************");
+        Console.WriteLine("psync response full resync *********************************************************************************");
         Console.WriteLine($"bytes read: {bytesRead}");
         Console.WriteLine($"Response: {response}");
 
+        buffer = new byte[client.ReceiveBufferSize];
+        bytesRead = stream.Read(buffer, 0, buffer.Length);
+        response = Encoding.UTF8.GetString(buffer);
+        Console.WriteLine("psync response rdb file *********************************************************************************");
+        Console.WriteLine($"bytes read: {bytesRead}");
+        Console.WriteLine($"Response: {response}");
     }
     public async Task StartMasterPropagation(TcpClient ConnectionWithMaster)
     {
