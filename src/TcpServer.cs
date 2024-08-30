@@ -229,8 +229,10 @@ class TcpServer
 
         string[] PsyncCommand = ["PSYNC", "?", "-1"];
         await stream.WriteAsync(Encoding.UTF8.GetBytes(_parser.RespArray(PsyncCommand)));
-        //response = await reader.ReadLineAsync();
-        //Console.WriteLine($"Response: {response}");
+        response = await reader.ReadLineAsync();
+        Console.WriteLine("Read RDB from master *********************************************************************************");
+        Console.WriteLine("bytesRead *********************************************************************************");
+        Console.WriteLine($"Response: {response}");
 
         //if (response == null || !"+FULLRESYNC".Equals(response.Substring(0, response.IndexOf(" "))))
         //    return null;
@@ -247,7 +249,7 @@ class TcpServer
             {
                 byte[] buffer = new byte[ConnectionWithMaster.ReceiveBufferSize];
                 int bytesRead = await stream.ReadAsync(buffer, 0, buffer.Length);
-                Console.WriteLine("Read from master *********************************************************************************");
+
                 if (bytesRead > 0)
                 {
                     List<string[]> commands = _parser.Deserialize(buffer.Take(bytesRead).ToArray());
