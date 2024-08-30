@@ -244,6 +244,7 @@ class TcpServer
     }
     public async Task StartMasterPropagation(TcpClient ConnectionWithMaster)
     {
+        Console.WriteLine("started master propagration *********************************************************************************");
         NetworkStream stream = ConnectionWithMaster.GetStream();
         while (ConnectionWithMaster.Connected)
         {
