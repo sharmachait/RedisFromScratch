@@ -232,12 +232,37 @@ class TcpServer
         response = reader.ReadLine();
         Console.WriteLine("Read Full resync *********************************************************************************");
         Console.WriteLine($"Response: {response}");
-        response = reader.ReadLine();
-        Console.WriteLine("Read RDB from master *********************************************************************************");
-        Console.WriteLine($"Response: {response}");
-        response = reader.ReadLine();
-        Console.WriteLine("Read RDB from master *********************************************************************************");
-        Console.WriteLine($"Response: {response}");
+        StringBuilder lengthBuilder = new StringBuilder();
+        int readByte;
+        while ((readByte = stream.ReadByte()) != -1)
+        {
+            char c = (char)readByte;
+            if (c == '\r')
+                continue;
+            if (c == '\n')
+                break;
+
+            lengthBuilder.Append(c);
+        }
+
+        int messageLength = int.Parse(lengthBuilder.ToString().TrimStart('$'));
+
+        // Step 2: Read the specified number of bytes
+        byte[] messageBuffer = new byte[messageLength];
+        int totalBytesRead = 0;
+        while (totalBytesRead < messageLength)
+        {
+            int bytesRead = stream.Read(messageBuffer, totalBytesRead, messageLength - totalBytesRead);
+            if (bytesRead == 0)
+            {
+                // Connection closed or end of stream
+                break;
+            }
+            totalBytesRead += bytesRead;
+        }
+
+        Console.WriteLine("Read Full resync *********************************************************************************");
+        Console.WriteLine($"Response: {messageBuffer}");
 
         //if (response == null || !"+FULLRESYNC".Equals(response.Substring(0, response.IndexOf(" "))))
         //    return null;
