@@ -192,14 +192,13 @@ class TcpServer
         NetworkStream stream = client.GetStream();
         StreamReader reader = new StreamReader(stream, Encoding.UTF8);
 
-        Console.WriteLine("Handshake *********************************************************************************");
-
         string[] pingCommand = ["PING"];
         
         stream.Write(Encoding.UTF8.GetBytes(_parser.RespArray(pingCommand)));
         byte[] buffer = new byte[client.ReceiveBufferSize];
         int bytesRead = stream.Read(buffer, 0, buffer.Length);
         string response = Encoding.UTF8.GetString(buffer);
+        Console.WriteLine("PING response *********************************************************************************");
         Console.WriteLine($"Response: {response}");
 
         string[] ReplconfPortCommand = ["REPLCONF", "listening-port", _config.port.ToString()];
@@ -208,6 +207,7 @@ class TcpServer
         buffer = new byte[client.ReceiveBufferSize];
         bytesRead = stream.Read(buffer, 0, buffer.Length);
         response = Encoding.UTF8.GetString(buffer);
+        Console.WriteLine("REPLCONF response *********************************************************************************");
         Console.WriteLine($"Response: {response}");
 
         string[] ReplconfCapaCommand = ["REPLCONF", "capa", "psync2"];
@@ -216,6 +216,7 @@ class TcpServer
         buffer = new byte[client.ReceiveBufferSize];
         bytesRead = stream.Read(buffer, 0, buffer.Length);
         response = Encoding.UTF8.GetString(buffer);
+        Console.WriteLine("REPLCONF response *********************************************************************************");
         Console.WriteLine($"Response: {response}");
 
         string[] PsyncCommand = ["PSYNC", "?", "-1"];
