@@ -235,6 +235,9 @@ class TcpServer
         response = reader.ReadLine();
         Console.WriteLine("Read RDB from master *********************************************************************************");
         Console.WriteLine($"Response: {response}");
+        response = reader.ReadLine();
+        Console.WriteLine("Read RDB from master *********************************************************************************");
+        Console.WriteLine($"Response: {response}");
 
         //if (response == null || !"+FULLRESYNC".Equals(response.Substring(0, response.IndexOf(" "))))
         //    return null;
