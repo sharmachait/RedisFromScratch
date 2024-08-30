@@ -252,6 +252,7 @@ class TcpServer
             byte[] buffer = new byte[ConnectionWithMaster.ReceiveBufferSize];
             int bytesRead = await stream.ReadAsync(buffer, 0, buffer.Length);
             Console.WriteLine("Read Command from master *********************************************************************************");
+            Console.WriteLine(bytesRead+"*********************************************************************************");
             if (bytesRead > 0)
             {
                 List<string[]> commands = _parser.Deserialize(buffer.Take(bytesRead).ToArray());
