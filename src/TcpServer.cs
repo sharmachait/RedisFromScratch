@@ -202,16 +202,12 @@ class TcpServer
         stream.Write(Encoding.UTF8.GetBytes(_parser.RespArray(PsyncCommand)));
         buffer = new byte[client.ReceiveBufferSize];
         bytesRead = stream.Read(buffer, 0, buffer.Length);
-        string response = Encoding.UTF8.GetString(buffer);
-        Console.WriteLine("psync response full resync *********************************************************************************");
-        Console.WriteLine($"bytes read: {bytesRead}");
-        Console.WriteLine($"Response: {response}");
 
         int buffersize = client.ReceiveBufferSize;
         Console.WriteLine("buffer size ******* "+buffersize);
         buffer = new byte[buffersize];
         bytesRead = stream.Read(buffer, 0, buffer.Length);
-        response = Encoding.UTF8.GetString(buffer);
+        string response = Encoding.UTF8.GetString(buffer);
         Console.WriteLine("psync response rdb file *********************************************************************************");
         Console.WriteLine($"bytes read: {bytesRead}");
         Console.WriteLine($"Response: {response}");
