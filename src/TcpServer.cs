@@ -229,10 +229,10 @@ class TcpServer
 
         string[] PsyncCommand = ["PSYNC", "?", "-1"];
         await stream.WriteAsync(Encoding.UTF8.GetBytes(_parser.RespArray(PsyncCommand)));
-        response = await reader.ReadLineAsync();
+        response = reader.ReadLine();
         Console.WriteLine("Read Full resync *********************************************************************************");
         Console.WriteLine($"Response: {response}");
-        response = await reader.ReadLineAsync();
+        response = reader.ReadLine();
         Console.WriteLine("Read RDB from master *********************************************************************************");
         Console.WriteLine($"Response: {response}");
 
