@@ -230,8 +230,10 @@ class TcpServer
         string[] PsyncCommand = ["PSYNC", "?", "-1"];
         await stream.WriteAsync(Encoding.UTF8.GetBytes(_parser.RespArray(PsyncCommand)));
         response = await reader.ReadLineAsync();
+        Console.WriteLine("Read Full resync *********************************************************************************");
+        Console.WriteLine($"Response: {response}");
+        response = await reader.ReadLineAsync();
         Console.WriteLine("Read RDB from master *********************************************************************************");
-        Console.WriteLine("bytesRead *********************************************************************************");
         Console.WriteLine($"Response: {response}");
 
         //if (response == null || !"+FULLRESYNC".Equals(response.Substring(0, response.IndexOf(" "))))
