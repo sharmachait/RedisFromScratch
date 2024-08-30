@@ -198,7 +198,7 @@ class TcpServer
             stream.Read(buffer, 0, buffer.Length);
             //await client.ReceiveAsync(buffer);
             var response = Encoding.ASCII.GetString(buffer);
-            response = response.Replace("\\", "`r`n");
+            response = response.Replace("\r\n", " ");
             Console.WriteLine($"Response: {response}");
             // if response starts with +FULLRESYNC, await the redis file
             // if (response.ToLower().Contains("+fullresync"))
