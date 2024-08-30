@@ -86,8 +86,8 @@ class TcpServer
 
                 foreach (string[] command in commands)
                 {
-                    Console.WriteLine("*****************************************************************************************");
-                    Console.WriteLine("Command from client: " + string.Join(" ", command));
+                    //Console.WriteLine("*****************************************************************************************");
+                    //Console.WriteLine("Command from client: " + string.Join(" ", command));
                     ResponseDTO response = await _handler.Handle(command, client, DateTime.Now);
                     client.Send(response.response);
                     if (response.data != null)
