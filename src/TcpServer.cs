@@ -182,10 +182,9 @@ class TcpServer
         await master.ConnectAsync(_config.masterHost, _config.masterPort);
         Console.WriteLine($"Replicating from {_config.masterHost}: {_config.masterPort}");
         HandShake(master);
-        //StartMasterPropagation(master);
+        StartMasterPropagation(master);
         //_ = Task.Run(async () => await StartMasterPropagation(master));
     }
-
     //done by slave instace
     //dont need to create the slave object here
     public async Task HandShake(TcpClient client)
@@ -239,30 +238,29 @@ class TcpServer
         //do multi thread to listen from master
 
     }
+    public async Task StartMasterPropagation(TcpClient ConnectionWithMaster)
+    {
+        NetworkStream stream = ConnectionWithMaster.GetStream();
+        while (ConnectionWithMaster.Connected)
+        {
+            if (stream.DataAvailable)
+            {
+                byte[] buffer = new byte[ConnectionWithMaster.ReceiveBufferSize];
+                int bytesRead = await stream.ReadAsync(buffer, 0, buffer.Length);
 
-    //public async Task StartMasterPropagation(TcpClient ConnectionWithMaster)
-    //{
-    //    NetworkStream stream = ConnectionWithMaster.GetStream();
-    //    while (ConnectionWithMaster.Connected)
-    //    {
-    //        if (stream.DataAvailable)
-    //        {
-    //            byte[] buffer = new byte[ConnectionWithMaster.ReceiveBufferSize];
-    //            int bytesRead = await stream.ReadAsync(buffer, 0, buffer.Length);
+                if (bytesRead > 0)
+                {
+                    List<string[]> commands = _parser.Deserialize(buffer.Take(bytesRead).ToArray());
 
-    //            if (bytesRead > 0)
-    //            {
-    //                List<string[]> commands = _parser.Deserialize(buffer.Take(bytesRead).ToArray());
-
-    //                foreach (string[] command in commands)
-    //                {
-
-    //                    string response = await _handler.HandleMasterCommands(command);
-    //                }
-    //            }
-    //        }
-    //    }
-    //}
+                    foreach (string[] command in commands)
+                    {
+                        Console.WriteLine("Command from master: " + string.Join(" ", command));
+                        string response = await _handler.HandleCommandsFromMaster(command);
+                    }
+                }
+            }
+        }
+    }
 
 }
 

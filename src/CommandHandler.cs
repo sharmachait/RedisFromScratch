@@ -22,29 +22,28 @@ public class CommandHandler
         _config = config;
     }
 
-    //public async Task<string> HandleMasterCommands(string[] command)
-    //{
+    public async Task<string> HandleCommandsFromMaster(string[] command)
+    {
+        string cmd = command[0];
 
-    //    string cmd = command[0];
+        DateTime currTime = DateTime.Now;
+        string res = "";
 
-    //    DateTime currTime = DateTime.Now;
-    //    string res = "";
+        switch (cmd)
+        {
+            case "set":
+                Console.WriteLine("hi ************************************************************************");
+                res = _store.Set(command);
+                _ = Task.Run(() => sendCommandToSlaves(_infra.slaves, command));
+                break;
 
-    //    switch (cmd)
-    //    {
-    //        case "set":
-    //            Console.WriteLine("hi ************************************************************************");
-    //            res = SetFromMaster(command, currTime);
-    //            _ = Task.Run(() => sendCommandToSlaves(_infra.slaves, command));
-    //            break;
+            default:
+                res = "+No Response\r\n";
+                break;
+        }
 
-    //        default:
-    //            res = "+No Response\r\n";
-    //            break;
-    //    }
-
-    //    return res;
-    //}
+        return res;
+    }
 
     //public string SetFromMaster(string[] command, DateTime currTime)
     //{

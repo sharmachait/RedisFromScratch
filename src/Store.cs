@@ -1,12 +1,14 @@
-﻿namespace codecrafters_redis;
+﻿using System.Collections.Concurrent;
+
+namespace codecrafters_redis;
 
 public class Store
 {
-    private Dictionary<string, Value> map;
+    private ConcurrentDictionary<string, Value> map;
 
     public Store()
     {
-        map = new Dictionary<string, Value>();
+        map = new ConcurrentDictionary<string, Value>();
     }
 
 
@@ -50,7 +52,8 @@ public class Store
             }
             else
             {
-                map.Remove(command[1]);
+                
+                map.TryRemove(command[1],out _);
                 return $"$-1\r\n";
             }
         }
