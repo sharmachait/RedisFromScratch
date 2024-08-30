@@ -192,6 +192,8 @@ class TcpServer
         NetworkStream stream = client.GetStream();
         StreamReader reader = new StreamReader(stream, Encoding.UTF8);
 
+        Console.WriteLine("Handshake *********************************************************************************");
+
         string[] pingCommand = ["PING"];
         
         stream.Write(Encoding.UTF8.GetBytes(_parser.RespArray(pingCommand)));
