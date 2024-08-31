@@ -179,9 +179,11 @@ class TcpServer
             }
         }
 
-        var command = "*" + sb.ToString();
+        var command = sb.ToString();
         Console.WriteLine("........................................................");
-        Console.WriteLine("Command from master: " + command);
+        
+        string[] parts = command.Split("\r\n");
+        Console.WriteLine("Command from master: " + string.Join(" ",parts));
     }
     public async Task StartMasterPropagation(TcpClient ConnectionWithMaster, NetworkStream stream)
     {
