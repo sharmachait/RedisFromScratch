@@ -26,15 +26,10 @@ class TcpServer
         )
     {
         _handler = handler;
-
         _parser = parser;
-
         _config = config;
-
         _infra = infra;
-
         id = 0;
-
         _server = new TcpListener(IPAddress.Any, config.port);
     }
 
@@ -44,9 +39,7 @@ class TcpServer
         try
         {
             _server.Start();
-
             Console.WriteLine($"Server started at {_config.port}");
-
             while (true)
             {
                 TcpClient socket = await _server.AcceptTcpClientAsync();
@@ -56,11 +49,8 @@ class TcpServer
                     return;
 
                 NetworkStream stream = socket.GetStream();
-
                 Client client = new Client(socket, remoteIpEndPoint, stream, id);
-
                 _infra.clients.Add(client);
-
                 _ = Task.Run(async () => await HandleClientAsync(client));
             }
         }
@@ -82,7 +72,6 @@ class TcpServer
             if (bytesRead > 0)
             {
                 List<string[]> commands = _parser.Deserialize(buffer);
-
                 foreach (string[] command in commands)
                 {
                     ResponseDTO response = await _handler.Handle(command, client, DateTime.Now);
@@ -95,33 +84,6 @@ class TcpServer
             }
         }
     }
-
-    ////three threads
-    //public async Task StartSlaveAsync()
-    //{
-    //    _server.Start();
-
-    //    // Start a new thread for InitiateSlaveryAsync.
-    //    Thread slaveThread = new Thread(async () => await InitiateSlaveryAsync());
-    //    slaveThread.Start();
-
-    //    // Start a new thread for StartMasterForSlaveInstanceAsync.
-    //    Thread masterThread = new Thread(async () => await StartMasterForSlaveInstanceAsync());
-    //    masterThread.Start();
-
-    //    // The threads will continue running in the background.
-    //    // You do not need to join them if either has an infinite loop.
-    //}
-
-    ////concurrency
-    //public async Task StartSlaveAsync()
-    //{
-    //    _server.Start();
-    //    Task ServerTask = Task.Run(async () => await StartMasterForSlaveInstanceAsync());
-    //    Task SlaveTask = Task.Run(async () => await InitiateSlaveryAsync());
-
-    //    await Task.WhenAll(ServerTask,SlaveTask);
-    //}
 
     //two threads
     public async Task StartSlaveAsync()
@@ -138,7 +100,6 @@ class TcpServer
         try
         {
             Console.WriteLine($"Server started at {_config.port}");
-
             while (true)
             {
                 TcpClient socket = await _server.AcceptTcpClientAsync();
@@ -148,11 +109,8 @@ class TcpServer
                     return;
 
                 NetworkStream stream = socket.GetStream();
-
                 Client client = new Client(socket, remoteIpEndPoint, stream, id);
-
                 _infra.clients.Add(client);
-
                 _ = Task.Run(async () => await HandleClientAsync(client));
             }
         }
@@ -173,12 +131,10 @@ class TcpServer
         Console.WriteLine($"Replicating from {_config.masterHost}: {_config.masterPort}");
         NetworkStream stream = master.GetStream();
         await HandShake(stream);
-        await StartMasterPropagation(master, stream);
+        //await StartMasterPropagation(master, stream);
     }
     public async Task HandShake(NetworkStream stream)
     {
-        
-
         var lenListeningPort = _config.port.ToString().Length;
         var listeningPort = _config.port.ToString();
         var mystrings =
@@ -189,65 +145,43 @@ class TcpServer
                      "*3\r\n$8\r\nREPLCONF\r\n$4\r\ncapa\r\n$6\r\npsync2\r\n",
                      "*3\r\n$5\r\nPSYNC\r\n$1\r\n?\r\n$2\r\n-1\r\n" };
         var buffer = new byte[1024];
+        int c = 0;
         foreach (var part in mystrings)
         {
             Console.WriteLine($"Sending: {part}");
             byte[] data = Encoding.ASCII.GetBytes(part);
             await stream.WriteAsync(data);
+            if (c == 3)
+                break;
             await stream.ReadAsync(buffer, 0, buffer.Length);
             var response = Encoding.ASCII.GetString(buffer);
-            response = response.Replace("\r\n", " ");
-            Console.WriteLine($"Response: {response}");
-
-            // if response starts with +FULLRESYNC, await the redis file
-            // if (response.ToLower().Contains("+fullresync"))
-            // {
-            //   Console.WriteLine("Receiving full resync");
-            //   _ = Task.Run(async () => {
-            //     var buffer = new byte[1024];
-            //     await client.ReceiveAsync(buffer);
-            //     response = Encoding.ASCII.GetString(buffer);
-            //     Console.WriteLine($"Response: {response}");
-            //   });
-            // }
+            c++;
         }
 
+        while (true)
+        {
+            var b = stream.ReadByte();
+            if (b == '*')
+            {
+                break;
+            }
+        }
 
-        //string[] pingCommand = ["PING"];
-        
-        //stream.Write(Encoding.UTF8.GetBytes(_parser.RespArray(pingCommand)));
-        //byte[] buffer = new byte[client.ReceiveBufferSize];
-        //int bytesRead = stream.Read(buffer, 0, buffer.Length);
+        StringBuilder sb = new StringBuilder();
+        buffer = new byte[1024];
+        while (true)
+        {
+            int bytesRead = await stream.ReadAsync(buffer);
+            sb.Append(Encoding.UTF8.GetString(buffer, 0, bytesRead));
+            if (!stream.DataAvailable)
+            {
+                break;
+            }
+        }
 
-        //string[] ReplconfPortCommand = ["REPLCONF", "listening-port", _config.port.ToString()];
-        
-        //stream.Write(Encoding.UTF8.GetBytes(_parser.RespArray(ReplconfPortCommand)));
-        //buffer = new byte[client.ReceiveBufferSize];
-        //bytesRead = stream.Read(buffer, 0, buffer.Length);
-        
-        //string[] ReplconfCapaCommand = ["REPLCONF", "capa", "psync2"];
-        
-        //stream.Write(Encoding.UTF8.GetBytes(_parser.RespArray(ReplconfCapaCommand)));
-        //buffer = new byte[client.ReceiveBufferSize];
-        //bytesRead = stream.Read(buffer, 0, buffer.Length);
-        
-        //string[] PsyncCommand = ["PSYNC", "?", "-1"];
-
-        //stream.Write(Encoding.UTF8.GetBytes(_parser.RespArray(PsyncCommand)));
-        //buffer = new byte[client.ReceiveBufferSize];
-        //bytesRead = stream.Read(buffer, 0, buffer.Length);
-        //string response = Encoding.UTF8.GetString(buffer);
-        //Console.WriteLine("psync response full resync *********************************************************************************");
-        //Console.WriteLine($"bytes read: {bytesRead}");
-        //Console.WriteLine($"Response: {response}");
-
-        //buffer = new byte[client.ReceiveBufferSize];
-        //bytesRead = stream.Read(buffer, 0, buffer.Length);
-        //response = Encoding.UTF8.GetString(buffer);
-        //Console.WriteLine("psync response rdb file *********************************************************************************");
-        //Console.WriteLine($"bytes read: {bytesRead}");
-        //Console.WriteLine($"Response: {response}");
-        //Console.WriteLine("response ended *********************************************************************************");
+        var command = "*" + sb.ToString();
+        Console.WriteLine("........................................................");
+        Console.WriteLine("Command from master: " + command);
     }
     public async Task StartMasterPropagation(TcpClient ConnectionWithMaster, NetworkStream stream)
     {
@@ -261,8 +195,6 @@ class TcpServer
 
                 foreach (string[] command in commands)
                 {
-                    Console.WriteLine("........................................................");
-                    Console.WriteLine("Command from master: " + string.Join(" ", command));
                     string response = await _handler.HandleCommandsFromMaster(command, ConnectionWithMaster);
                 }
             }
