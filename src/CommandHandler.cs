@@ -56,7 +56,7 @@ public class CommandHandler
         string res;
         switch (command[1])
         {
-            case "getack":
+            case "GETACK":
                 res = _parser.RespArray(
                         new string[] {"REPLCONF", "ACK", _config.masterReplOffset.ToString()}
                     );
