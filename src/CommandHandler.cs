@@ -71,11 +71,6 @@ public class CommandHandler
         return res;
     }
 
-    //public string SetFromMaster(string[] command, DateTime currTime)
-    //{
-    //    return _store.Set(command, currTime);
-    //}
-
     public async Task<ResponseDTO> Handle(string[] command, Client client, DateTime currTime)
     {
 
