@@ -2,6 +2,7 @@
 
 using codecrafters_redis;
 using System;
+using System.Diagnostics;
 using System.Diagnostics.Metrics;
 using System.IO;
 using System.Net;
@@ -76,7 +77,9 @@ class TcpServer
                 List<string[]> commands = _parser.Deserialize(buffer);
                 foreach (string[] command in commands)
                 {
-                    ResponseDTO response = await _handler.Handle(command, client, DateTime.Now, bufferSize);
+                    Stopwatch stopwatch = new Stopwatch();
+                    stopwatch.Start();
+                    ResponseDTO response = await _handler.Handle(command, client, DateTime.Now, bufferSize, stopwatch);
                     client.Send(response.response);
                     if (response.data != null)
                     {

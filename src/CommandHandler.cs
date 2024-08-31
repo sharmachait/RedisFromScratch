@@ -109,7 +109,7 @@ public class CommandHandler
                 break;
 
             case "wait":
-                res = await wait(command, client, stopwatch);
+                res = await WaitAsync(command, client, stopwatch);
                 break;
 
             case "psync":
