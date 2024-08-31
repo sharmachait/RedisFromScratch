@@ -198,12 +198,13 @@ class TcpServer
                     i++;
                     await stream.WriteAsync(Encoding.UTF8.GetBytes(res));
                 }
+                Console.WriteLine(".........................................................");
+                Console.WriteLine(offset);
+                //update the offset
+                _config.masterReplOffset += offset;
+                offset = 0;
             }
-            Console.WriteLine(".........................................................");
-            Console.WriteLine(offset);
-            //update the offset
-            _config.masterReplOffset += offset;
-            offset = 0;
+
         }
     }
     public async Task StartMasterPropagation(TcpClient ConnectionWithMaster, NetworkStream stream)
