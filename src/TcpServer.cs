@@ -130,10 +130,10 @@ class TcpServer
         await master.ConnectAsync(_config.masterHost, _config.masterPort);
         Console.WriteLine($"Replicating from {_config.masterHost}: {_config.masterPort}");
         NetworkStream stream = master.GetStream();
-        await HandShake(stream);
+        await HandShake(master, stream);
         //await StartMasterPropagation(master, stream);
     }
-    public async Task HandShake(NetworkStream stream)
+    public async Task HandShake(TcpClient master,NetworkStream stream)
     {
         var lenListeningPort = _config.port.ToString().Length;
         var listeningPort = _config.port.ToString();
@@ -184,6 +184,12 @@ class TcpServer
         
         string[] parts = command.Split("\r\n");
         Console.WriteLine("Command from master: " + string.Join(" ",parts));
+        string[] commandArray = _parser.ParseArray(parts);
+        string res = await _handler.HandleCommandsFromMaster(commandArray, master);
+        if (command[0].Equals("replconf"))
+        {
+            await stream.WriteAsync(Encoding.UTF8.GetBytes(res));
+        }
     }
     public async Task StartMasterPropagation(TcpClient ConnectionWithMaster, NetworkStream stream)
     {
