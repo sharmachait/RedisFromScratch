@@ -35,6 +35,8 @@ public class RespParser
 
     public string[] ParseArray(string[] parts)
     {
+        Console.WriteLine(".........................................................");
+        
         Console.WriteLine(string.Join("-",parts));
         string len = parts[0];
         int length = int.Parse(len);
