@@ -205,11 +205,12 @@ class TcpServer
                 while (true)
                 {
                     byte b = (byte)stream.ReadByte();
+                    leftovercommand.Add(b);
                     if (b == '*')
                         break;
 
                     offset++;
-                    leftovercommand.Add(b);
+                    
                     if (!stream.DataAvailable)
                         break;
                 }
