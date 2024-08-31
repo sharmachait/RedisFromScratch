@@ -201,15 +201,15 @@ class TcpServer
 
             if (commandArray[0].Equals("replconf") && commandArray[1].Equals("GETACK"))
             {
-                //while (true)
-                //{
-                //    byte b = (byte)stream.ReadByte();
-                //    offset++;
-                //    if (b == '*' || !stream.DataAvailable)
-                //    {
-                //        break;
-                //    }
-                //}
+                while (true)
+                {
+                    byte b = (byte)stream.ReadByte();
+                    offset++;
+                    if (b == '*' || !stream.DataAvailable)
+                    {
+                        break;
+                    }
+                }
                 await stream.WriteAsync(Encoding.UTF8.GetBytes(res));
             }
 
