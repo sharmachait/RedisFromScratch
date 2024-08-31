@@ -72,7 +72,7 @@ public class CommandHandler
         return res;
     }
 
-    public async Task<ResponseDTO> Handle(string[] command, Client client, DateTime currTime, int bufferSize, Stopwatch stopwatch)
+    public async Task<ResponseDTO> Handle(string[] command, Client client, DateTime currTime, int bufferSize)
     {
 
         string cmd = command[0];
@@ -109,7 +109,7 @@ public class CommandHandler
                 break;
 
             case "wait":
-                res = await WaitAsync(command, client, stopwatch);
+                res = await WaitAsync(command, client);
                 break;
 
             case "psync":
@@ -159,7 +159,7 @@ public class CommandHandler
         }
     }
 
-    public async Task<string> WaitAsync(string[] command, Client client, Stopwatch stopwatch)
+    public async Task<string> WaitAsync(string[] command, Client client)
     {
         int c = 0;
         string[] getackarr = new string[] { "REPLCONF", "GETACK", "*" };
@@ -193,7 +193,8 @@ public class CommandHandler
                     return -1; // Return a value indicating failure or cancellation
                 }
             }, cts.Token)).ToList();
-
+            Stopwatch stopwatch = new Stopwatch();
+            stopwatch.Start();
             while (stopwatch.ElapsedMilliseconds < time && c < required)
             {
                 try
