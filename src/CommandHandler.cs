@@ -1,7 +1,4 @@
-﻿using codecrafters_redis;
-using System.Collections;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
+﻿using System.Collections.Concurrent;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
@@ -112,6 +109,10 @@ public class CommandHandler
 
             case "replconf":
                 res = ReplConf(command, client);
+                break;
+
+            case "wait":
+                res = _parser.RespInteger(0);
                 break;
 
             case "psync":

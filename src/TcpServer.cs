@@ -189,11 +189,8 @@ class TcpServer
 
             sb.Append(Encoding.UTF8.GetString(bytes.ToArray()));
 
-            Console.WriteLine(".........................................................");
-            Console.WriteLine(bytes.Count);
             if (bytes.Count == 0)
                 continue;
-            Console.WriteLine(sb.ToString());
 
             string command = sb.ToString();
             string[] parts = command.Split("\r\n");
@@ -217,9 +214,6 @@ class TcpServer
                     if (!stream.DataAvailable)
                         break;
                 }
-                Console.WriteLine("leftovercommand leftovercommand leftovercommand leftovercommand leftovercommand");
-                Console.WriteLine(Encoding.UTF8.GetString(leftovercommand.ToArray()).Replace("\r\n","`r`n"));
-                Console.WriteLine("leftovercommand leftovercommand leftovercommandleftovercommand leftovercommand");
                 await stream.WriteAsync(Encoding.UTF8.GetBytes(res));
             }
 

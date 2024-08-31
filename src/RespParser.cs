@@ -74,6 +74,11 @@ public class RespParser
         string res = $"${bytes.Length}\r\n{content}";
         return res;
     }
+
+    public string RespInteger(int i)
+    {
+        return $":{i}\r\n";
+    }
 }
 
 
