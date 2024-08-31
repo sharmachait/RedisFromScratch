@@ -170,6 +170,7 @@ class TcpServer
         }
         Console.WriteLine("psyncReponse psyncReponse psyncReponse psyncReponse psyncReponse psyncReponse psyncReponse");
         Console.WriteLine(Encoding.UTF8.GetString(psyncReponse.ToArray()));
+        Console.WriteLine("psyncReponse psyncReponse psyncReponse psyncReponse psyncReponse psyncReponse psyncReponse");
         while (master.Connected)
         {
             int offset = 1;
