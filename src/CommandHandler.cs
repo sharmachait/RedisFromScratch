@@ -24,7 +24,7 @@ public class CommandHandler
         _config = config;
     }
 
-    public async Task<string> HandleCommandsFromMaster(string[] command)
+    public async Task<string> HandleCommandsFromMaster(string[] command, TcpClient ConnectionWithMaster)
     {
         string cmd = command[0];
 
@@ -38,8 +38,32 @@ public class CommandHandler
                 _ = Task.Run(() => sendCommandToSlaves(_infra.slaves, command));
                 break;
 
+            case "replconf":
+                res = ReplConfSlave(command);
+                break;
+            
             default:
                 res = "+No Response\r\n";
+                break;
+        }
+
+        return res;
+    }
+
+    public string ReplConfSlave(string[] command)
+    {
+        Console.WriteLine(string.Join(" ",command));
+        string res;
+        switch (command[1])
+        {
+            case "getack":
+                res = _parser.RespArray(
+                        new string[] {"REPLCONF", "ACK", _config.masterReplOffset.ToString()}
+                    );
+                break;
+
+            default:
+                res = "Invalid options";
                 break;
         }
 

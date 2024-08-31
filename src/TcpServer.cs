@@ -194,12 +194,11 @@ class TcpServer
             Console.WriteLine($"Sending: {part}");
             byte[] data = Encoding.ASCII.GetBytes(part);
             stream.Write(data);
-            //await client.SendAsync(data);
             stream.Read(buffer, 0, buffer.Length);
-            //await client.ReceiveAsync(buffer);
             var response = Encoding.ASCII.GetString(buffer);
             //response = response.Replace("\r\n", " ");
             //Console.WriteLine($"Response: {response}");
+
             // if response starts with +FULLRESYNC, await the redis file
             // if (response.ToLower().Contains("+fullresync"))
             // {
@@ -265,12 +264,10 @@ class TcpServer
                 foreach (string[] command in commands)
                 {
                     Console.WriteLine("Command from master: " + string.Join(" ", command));
-                    string response = await _handler.HandleCommandsFromMaster(command);
+                    string response = await _handler.HandleCommandsFromMaster(command, ConnectionWithMaster);
                 }
             }
         }
     }
 
 }
-
-
