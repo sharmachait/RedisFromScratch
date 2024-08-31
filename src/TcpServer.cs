@@ -179,12 +179,12 @@ class TcpServer
             while (true)
             {
                 byte b =(byte)stream.ReadByte();
-                bytes.Add(b);
-                offset++;
                 if (b == '*' || !stream.DataAvailable)
                 {
                     break;
                 }
+                offset++;
+                bytes.Add(b);
             }
 
             sb.Append(Encoding.UTF8.GetString(bytes.ToArray()));
