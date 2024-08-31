@@ -183,15 +183,19 @@ class TcpServer
             }
             
             var commands = sb.ToString().Split("*");
-            foreach(string command in commands)
+            int i = 0;
+
+            for(;i < commands.Length;i++)
             {
+                string command = commands[i];
                 string[] parts = command.Split("\r\n");
                 string[] commandArray = _parser.ParseArray(parts);
                 
                 string res = await _handler.HandleCommandsFromMaster(commandArray, master);
                 
-                if (commandArray[0].Equals("replconf"))
+                if (commandArray[0].Equals("replconf") && commandArray[1].Equals("GETACK"))
                 {
+                    i++;
                     await stream.WriteAsync(Encoding.UTF8.GetBytes(res));
                 }
             }
