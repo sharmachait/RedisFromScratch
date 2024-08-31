@@ -2,6 +2,7 @@
 
 using codecrafters_redis;
 using System;
+using System.Diagnostics.Metrics;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
@@ -157,56 +158,56 @@ class TcpServer
             var response = Encoding.ASCII.GetString(buffer);
             c++;
         }
-
+        List<byte> psyncReponse = new List<byte>();
+        while (true)
+        {
+            var b = stream.ReadByte();
+            psyncReponse.Add((byte)b);
+            if (b == '*')
+            {
+                break;
+            }
+        }
+        Console.WriteLine("psyncReponse psyncReponse psyncReponse psyncReponse psyncReponse psyncReponse psyncReponse");
+        Console.WriteLine(Encoding.UTF8.GetString(psyncReponse.ToArray()));
         while (master.Connected)
         {
-            while (true)
-            {
-                var b = stream.ReadByte();
-                if (b == '*')
-                {
-                    break;
-                }
-            }
             int offset = 1;
             StringBuilder sb = new StringBuilder();
-            buffer = new byte[1024];
+            List<byte> bytes = new List<byte>();
+
+
             while (true)
             {
-                int bytesRead = await stream.ReadAsync(buffer);
-                offset += bytesRead;
-                sb.Append(Encoding.UTF8.GetString(buffer, 0, bytesRead));
-                if (!stream.DataAvailable)
+                byte b =(byte)stream.ReadByte();
+                bytes.Add(b);
+                offset++;
+                if (b == '*' || !stream.DataAvailable)
                 {
                     break;
                 }
             }
-            
-            var commands = sb.ToString().Split("*");
-            int i = 0;
 
-            for(;i < commands.Length;i++)
+            sb.Append(Encoding.UTF8.GetString(bytes.ToArray()));
+
+            Console.WriteLine(".........................................................");
+            Console.WriteLine(sb.ToString());
+
+            string command = sb.ToString();
+            string[] parts = command.Split("\r\n");
+            string[] commandArray = _parser.ParseArray(parts);
+
+            string res = await _handler.HandleCommandsFromMaster(commandArray, master);
+
+            if (commandArray[0].Equals("replconf") && commandArray[1].Equals("GETACK"))
             {
-                string command = commands[i];
-                string[] parts = command.Split("\r\n");
-                string[] commandArray = _parser.ParseArray(parts);
-                
-                string res = await _handler.HandleCommandsFromMaster(commandArray, master);
-                
-                if (commandArray[0].Equals("replconf") && commandArray[1].Equals("GETACK"))
-                {
-                    i++;
-                    await stream.WriteAsync(Encoding.UTF8.GetBytes(res));
-                }
-                Console.WriteLine(".........................................................");
-                Console.WriteLine(offset);
-                //update the offset
-                _config.masterReplOffset += offset;
-                offset = 0;
+                await stream.WriteAsync(Encoding.UTF8.GetBytes(res));
             }
 
+            _config.masterReplOffset += offset;
         }
     }
+
     public async Task StartMasterPropagation(TcpClient ConnectionWithMaster, NetworkStream stream)
     {
         while (ConnectionWithMaster.Connected)
