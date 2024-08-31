@@ -189,13 +189,14 @@ class TcpServer
                 string[] commandArray = _parser.ParseArray(parts);
                 
                 string res = await _handler.HandleCommandsFromMaster(commandArray, master);
-                Console.WriteLine(".........................................................");
-                Console.WriteLine(res);
+                
                 if (commandArray[0].Equals("replconf"))
                 {
                     await stream.WriteAsync(Encoding.UTF8.GetBytes(res));
                 }
             }
+            Console.WriteLine(".........................................................");
+            Console.WriteLine(res);
             //update the offset
             _config.masterReplOffset += offset;
             offset = 0;
