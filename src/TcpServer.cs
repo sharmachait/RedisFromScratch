@@ -196,7 +196,7 @@ class TcpServer
                 }
             }
             Console.WriteLine(".........................................................");
-            Console.WriteLine(res);
+            Console.WriteLine(offset);
             //update the offset
             _config.masterReplOffset += offset;
             offset = 0;
