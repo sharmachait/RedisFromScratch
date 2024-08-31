@@ -158,40 +158,43 @@ class TcpServer
             c++;
         }
 
-        while (true)
+        while (master.Connected)
         {
-            var b = stream.ReadByte();
-            if (b == '*')
+            while (true)
             {
-                break;
+                var b = stream.ReadByte();
+                if (b == '*')
+                {
+                    break;
+                }
             }
-        }
 
-        StringBuilder sb = new StringBuilder();
-        buffer = new byte[1024];
-        while (true)
-        {
-            int bytesRead = await stream.ReadAsync(buffer);
-            sb.Append(Encoding.UTF8.GetString(buffer, 0, bytesRead));
-            if (!stream.DataAvailable)
+            StringBuilder sb = new StringBuilder();
+            buffer = new byte[1024];
+            while (true)
             {
-                break;
+                int bytesRead = await stream.ReadAsync(buffer);
+                sb.Append(Encoding.UTF8.GetString(buffer, 0, bytesRead));
+                if (!stream.DataAvailable)
+                {
+                    break;
+                }
             }
-        }
 
-        var command = sb.ToString();
-        Console.WriteLine("........................................................");
-        
-        string[] parts = command.Split("\r\n");
-        Console.WriteLine("Command from master: " + string.Join(" ",parts));
-        string[] commandArray = _parser.ParseArray(parts);
-        string res = await _handler.HandleCommandsFromMaster(commandArray, master);
-        
-        if (commandArray[0].Equals("replconf"))
-        {
+            var command = sb.ToString();
             Console.WriteLine("........................................................");
-            Console.WriteLine(res);
-            await stream.WriteAsync(Encoding.UTF8.GetBytes(res));
+
+            string[] parts = command.Split("\r\n");
+            Console.WriteLine("Command from master: " + string.Join(" ", parts));
+            string[] commandArray = _parser.ParseArray(parts);
+            string res = await _handler.HandleCommandsFromMaster(commandArray, master);
+
+            if (commandArray[0].Equals("replconf"))
+            {
+                Console.WriteLine("........................................................");
+                Console.WriteLine(res);
+                await stream.WriteAsync(Encoding.UTF8.GetBytes(res));
+            }
         }
     }
     public async Task StartMasterPropagation(TcpClient ConnectionWithMaster, NetworkStream stream)
