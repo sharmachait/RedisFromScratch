@@ -263,6 +263,7 @@ class TcpServer
 
                 foreach (string[] command in commands)
                 {
+                    Console.WriteLine("........................................................");
                     Console.WriteLine("Command from master: " + string.Join(" ", command));
                     string response = await _handler.HandleCommandsFromMaster(command, ConnectionWithMaster);
                 }
