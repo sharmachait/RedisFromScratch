@@ -69,13 +69,14 @@ class TcpServer
         while (client.socket.Connected)
         {
             byte[] buffer = new byte[client.socket.ReceiveBufferSize];
+            int bufferSize = client.socket.ReceiveBufferSize;
             int bytesRead = await client.stream.ReadAsync(buffer, 0, buffer.Length);
             if (bytesRead > 0)
             {
                 List<string[]> commands = _parser.Deserialize(buffer);
                 foreach (string[] command in commands)
                 {
-                    ResponseDTO response = await _handler.Handle(command, client, DateTime.Now);
+                    ResponseDTO response = await _handler.Handle(command, client, DateTime.Now, bufferSize);
                     client.Send(response.response);
                     if (response.data != null)
                     {

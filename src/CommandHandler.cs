@@ -1,4 +1,5 @@
 ﻿using System.Collections.Concurrent;
+using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
@@ -71,7 +72,7 @@ public class CommandHandler
         return res;
     }
 
-    public async Task<ResponseDTO> Handle(string[] command, Client client, DateTime currTime)
+    public async Task<ResponseDTO> Handle(string[] command, Client client, DateTime currTime, int bufferSize, Stopwatch stopwatch)
     {
 
         string cmd = command[0];
@@ -95,6 +96,7 @@ public class CommandHandler
 
             case "set":
                 res = Set(client, command);
+                _infra.bytesSentToSlave += bufferSize;
                 _ = Task.Run(async () => await sendCommandToSlaves(_infra.slaves, command));
                 break;
 
@@ -107,7 +109,7 @@ public class CommandHandler
                 break;
 
             case "wait":
-                res = _parser.RespInteger(_infra.slaves.Count);
+                res = await wait(command, client, stopwatch);
                 break;
 
             case "psync":
@@ -157,6 +159,66 @@ public class CommandHandler
         }
     }
 
+    public async Task<string> WaitAsync(string[] command, Client client, Stopwatch stopwatch)
+    {
+        int c = 0;
+        string[] getackarr = new string[] { "REPLCONF", "GETACK", "*" };
+        string getack = _parser.RespArray(getackarr);
+        byte[] byteArray = Encoding.UTF8.GetBytes(getack);
+        int bufferSize = byteArray.Length;
+
+        int required = int.Parse(command[1]);
+        int time = int.Parse(command[2]);
+
+        using (var cts = new CancellationTokenSource(time)) // Timeout in milliseconds
+        {
+            var tasks = _infra.slaves.Select(slave => Task.Run(async () =>
+            {
+                try
+                {
+                    slave.connection.Send(byteArray);
+
+                    byte[] buffer = new byte[client.socket.ReceiveBufferSize];
+                    int bytesRead = await slave.connection.stream.ReadAsync(buffer, 0, buffer.Length, cts.Token);
+                    string bytesProcessed = Encoding.UTF8.GetString(buffer, 0, bytesRead);
+
+                    int idxColon = bytesProcessed.IndexOf(":");
+                    int idxNewline = bytesProcessed.IndexOf("\r\n");
+                    string resultString = bytesProcessed.Substring(idxColon + 1, idxNewline - idxColon - 1);
+
+                    return int.Parse(resultString);
+                }
+                catch (OperationCanceledException)
+                {
+                    return -1; // Return a value indicating failure or cancellation
+                }
+            }, cts.Token)).ToList();
+
+            while (stopwatch.ElapsedMilliseconds < time && c < required)
+            {
+                try
+                {
+                    Task<int> completedTask = await Task.WhenAny(tasks);
+                    tasks.Remove(completedTask);
+
+                    int result = await completedTask;
+
+                    if (result == _infra.bytesSentToSlave)
+                    {
+                        c++;
+                    }
+                }
+                catch (OperationCanceledException)
+                {
+                    break;
+                }
+            }
+        }
+
+        if (c < required)
+            return _parser.RespInteger(c);
+        return _parser.RespInteger(required);
+    }
 
     public string Info(string[] command)
     {
