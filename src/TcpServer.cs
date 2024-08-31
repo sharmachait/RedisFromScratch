@@ -181,19 +181,21 @@ class TcpServer
                 }
             }
 
-            var command = sb.ToString();
-            Console.WriteLine("........................................................");
-
-            string[] parts = command.Split("\r\n");
-            Console.WriteLine("Command from master: " + string.Join(" ", parts));
-            string[] commandArray = _parser.ParseArray(parts);
-            string res = await _handler.HandleCommandsFromMaster(commandArray, master);
-
-            if (commandArray[0].Equals("replconf"))
+            var commands = sb.ToString().Split("*");
+            foreach(string command in commands)
             {
                 Console.WriteLine("........................................................");
-                Console.WriteLine(res);
-                await stream.WriteAsync(Encoding.UTF8.GetBytes(res));
+                string[] parts = command.Split("\r\n");
+                Console.WriteLine("Command from master: " + string.Join(" ", parts));
+                string[] commandArray = _parser.ParseArray(parts);
+                string res = await _handler.HandleCommandsFromMaster(commandArray, master);
+
+                if (commandArray[0].Equals("replconf"))
+                {
+                    Console.WriteLine("........................................................");
+                    Console.WriteLine(res);
+                    await stream.WriteAsync(Encoding.UTF8.GetBytes(res));
+                }
             }
         }
     }
