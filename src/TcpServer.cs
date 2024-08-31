@@ -171,13 +171,13 @@ class TcpServer
         TcpClient master = new TcpClient();
         await master.ConnectAsync(_config.masterHost, _config.masterPort);
         Console.WriteLine($"Replicating from {_config.masterHost}: {_config.masterPort}");
-        HandShake(master);
-        StartMasterPropagation(master);
+        NetworkStream stream = master.GetStream();
+        await HandShake(stream);
+        await StartMasterPropagation(master, stream);
     }
-    public async Task HandShake(TcpClient client)
+    public async Task HandShake(NetworkStream stream)
     {
-        NetworkStream stream = client.GetStream();
-        StreamReader reader = new StreamReader(stream, Encoding.UTF8);
+        
 
         var lenListeningPort = _config.port.ToString().Length;
         var listeningPort = _config.port.ToString();
@@ -193,8 +193,8 @@ class TcpServer
         {
             Console.WriteLine($"Sending: {part}");
             byte[] data = Encoding.ASCII.GetBytes(part);
-            stream.Write(data);
-            stream.Read(buffer, 0, buffer.Length);
+            await stream.WriteAsync(data);
+            await stream.ReadAsync(buffer, 0, buffer.Length);
             var response = Encoding.ASCII.GetString(buffer);
             response = response.Replace("\r\n", " ");
             Console.WriteLine($"Response: {response}");
@@ -249,12 +249,10 @@ class TcpServer
         //Console.WriteLine($"Response: {response}");
         //Console.WriteLine("response ended *********************************************************************************");
     }
-    public async Task StartMasterPropagation(TcpClient ConnectionWithMaster)
+    public async Task StartMasterPropagation(TcpClient ConnectionWithMaster, NetworkStream stream)
     {
-        NetworkStream stream = ConnectionWithMaster.GetStream();
         while (ConnectionWithMaster.Connected)
         {
-
             byte[] buffer = new byte[ConnectionWithMaster.ReceiveBufferSize];
             int bytesRead = await stream.ReadAsync(buffer, 0, buffer.Length);
             if (bytesRead > 0)
