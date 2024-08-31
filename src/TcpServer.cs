@@ -186,10 +186,11 @@ class TcpServer
         Console.WriteLine("Command from master: " + string.Join(" ",parts));
         string[] commandArray = _parser.ParseArray(parts);
         string res = await _handler.HandleCommandsFromMaster(commandArray, master);
-        Console.WriteLine("........................................................");
-        Console.WriteLine(res);
+        
         if (command[0].Equals("replconf"))
         {
+            Console.WriteLine("........................................................");
+            Console.WriteLine(res);
             await stream.WriteAsync(Encoding.UTF8.GetBytes(res));
         }
     }
