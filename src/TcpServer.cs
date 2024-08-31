@@ -168,9 +168,7 @@ class TcpServer
                 break;
             }
         }
-        Console.WriteLine("psyncReponse psyncReponse psyncReponse psyncReponse psyncReponse psyncReponse psyncReponse");
-        Console.WriteLine(Encoding.UTF8.GetString(psyncReponse.ToArray()));
-        Console.WriteLine("psyncReponse psyncReponse psyncReponse psyncReponse psyncReponse psyncReponse psyncReponse");
+        
         while (master.Connected)
         {
             int offset = 1;
@@ -180,12 +178,13 @@ class TcpServer
             while (true)
             {
                 byte b =(byte)stream.ReadByte();
-                if (b == '*' || !stream.DataAvailable)
-                {
-                    break;
-                }
+                if (b == '*')
+                   break;
+                
                 offset++;
                 bytes.Add(b);
+                if (!stream.DataAvailable)
+                    break;
             }
 
             sb.Append(Encoding.UTF8.GetString(bytes.ToArray()));
@@ -201,15 +200,22 @@ class TcpServer
 
             if (commandArray[0].Equals("replconf") && commandArray[1].Equals("GETACK"))
             {
+                offset++;
+                List<byte> leftovercommand = new List<byte>();
                 while (true)
                 {
                     byte b = (byte)stream.ReadByte();
-                    offset++;
-                    if (b == '*' || !stream.DataAvailable)
-                    {
+                    if (b == '*')
                         break;
-                    }
+
+                    offset++;
+                    leftovercommand.Add(b);
+                    if (!stream.DataAvailable)
+                        break;
                 }
+                Console.WriteLine("leftovercommand leftovercommand leftovercommand leftovercommand leftovercommand");
+                Console.WriteLine(Encoding.UTF8.GetString(leftovercommand.ToArray()));
+                Console.WriteLine("leftovercommand leftovercommand leftovercommandleftovercommand leftovercommand");
                 await stream.WriteAsync(Encoding.UTF8.GetBytes(res));
             }
 
