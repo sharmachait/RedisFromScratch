@@ -38,6 +38,10 @@ public class CommandHandler
                 _ = Task.Run(() => sendCommandToSlaves(_infra.slaves, command));
                 break;
 
+            case "ping":
+                //master is alive
+                break;
+
             case "replconf":
                 res = ReplConfSlave(command);
                 break;
@@ -53,7 +57,7 @@ public class CommandHandler
     public string ReplConfSlave(string[] command)
     {
         Console.WriteLine(string.Join(" ",command));
-        string res;
+        string res="";
         switch (command[1])
         {
             case "GETACK":

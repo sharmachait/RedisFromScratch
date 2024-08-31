@@ -168,12 +168,13 @@ class TcpServer
                     break;
                 }
             }
-
+            int offset = 1;
             StringBuilder sb = new StringBuilder();
             buffer = new byte[1024];
             while (true)
             {
                 int bytesRead = await stream.ReadAsync(buffer);
+                offset += bytesRead;
                 sb.Append(Encoding.UTF8.GetString(buffer, 0, bytesRead));
                 if (!stream.DataAvailable)
                 {
@@ -186,6 +187,8 @@ class TcpServer
             {
                 string[] parts = command.Split("\r\n");
                 string[] commandArray = _parser.ParseArray(parts);
+                Console.WriteLine(".........................................................");
+                Console.WriteLine(string.Join(" ",commandArray));
                 string res = await _handler.HandleCommandsFromMaster(commandArray, master);
 
                 if (commandArray[0].Equals("replconf"))
@@ -193,6 +196,9 @@ class TcpServer
                     await stream.WriteAsync(Encoding.UTF8.GetBytes(res));
                 }
             }
+            //update the offset
+            _config.masterReplOffset += offset;
+            offset = 0;
         }
     }
     public async Task StartMasterPropagation(TcpClient ConnectionWithMaster, NetworkStream stream)
