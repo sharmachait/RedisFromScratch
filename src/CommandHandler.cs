@@ -107,7 +107,7 @@ public class CommandHandler
                 break;
 
             case "wait":
-                res = _parser.RespInteger(0);
+                res = _parser.RespInteger(_infra.slaves.Count);
                 break;
 
             case "psync":
