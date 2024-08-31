@@ -214,7 +214,7 @@ class TcpServer
                         break;
                 }
                 Console.WriteLine("leftovercommand leftovercommand leftovercommand leftovercommand leftovercommand");
-                Console.WriteLine(Encoding.UTF8.GetString(leftovercommand.ToArray()));
+                Console.WriteLine(Encoding.UTF8.GetString(leftovercommand.ToArray()).Replace("\r\n","`r`n"));
                 Console.WriteLine("leftovercommand leftovercommand leftovercommandleftovercommand leftovercommand");
                 await stream.WriteAsync(Encoding.UTF8.GetBytes(res));
             }
