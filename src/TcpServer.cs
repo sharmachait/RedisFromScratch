@@ -191,6 +191,8 @@ class TcpServer
 
             Console.WriteLine(".........................................................");
             Console.WriteLine(bytes.Count);
+            if (bytes.Count == 0)
+                continue;
             Console.WriteLine(sb.ToString());
 
             string command = sb.ToString();
