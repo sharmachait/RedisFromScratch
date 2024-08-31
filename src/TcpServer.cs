@@ -187,7 +187,7 @@ class TcpServer
         string[] commandArray = _parser.ParseArray(parts);
         string res = await _handler.HandleCommandsFromMaster(commandArray, master);
         
-        if (command[0].Equals("replconf"))
+        if (commandArray[0].Equals("replconf"))
         {
             Console.WriteLine("........................................................");
             Console.WriteLine(res);
