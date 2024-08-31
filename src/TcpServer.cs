@@ -181,14 +181,14 @@ class TcpServer
                     break;
                 }
             }
-
+            Console.WriteLine(".........................................................");
+            Console.WriteLine(sb.ToString());
             var commands = sb.ToString().Split("*");
             foreach(string command in commands)
             {
                 string[] parts = command.Split("\r\n");
                 string[] commandArray = _parser.ParseArray(parts);
-                Console.WriteLine(".........................................................");
-                Console.WriteLine(string.Join(" ",commandArray));
+                
                 string res = await _handler.HandleCommandsFromMaster(commandArray, master);
 
                 if (commandArray[0].Equals("replconf"))
