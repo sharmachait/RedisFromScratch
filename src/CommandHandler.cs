@@ -38,7 +38,7 @@ public class CommandHandler
                 _ = Task.Run(() => sendCommandToSlaves(_infra.slaves, command));
                 break;
 
-            case "ping":
+            case "PING":
                 Console.WriteLine("-------------------------------------------");
                 Console.WriteLine("pinged");
                 break;

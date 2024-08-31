@@ -181,8 +181,7 @@ class TcpServer
                     break;
                 }
             }
-            Console.WriteLine(".........................................................");
-            Console.WriteLine(sb.ToString());
+            
             var commands = sb.ToString().Split("*");
             foreach(string command in commands)
             {
@@ -190,7 +189,8 @@ class TcpServer
                 string[] commandArray = _parser.ParseArray(parts);
                 
                 string res = await _handler.HandleCommandsFromMaster(commandArray, master);
-
+                Console.WriteLine(".........................................................");
+                Console.WriteLine(res);
                 if (commandArray[0].Equals("replconf"))
                 {
                     await stream.WriteAsync(Encoding.UTF8.GetBytes(res));
