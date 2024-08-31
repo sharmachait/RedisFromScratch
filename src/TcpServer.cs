@@ -190,6 +190,7 @@ class TcpServer
             sb.Append(Encoding.UTF8.GetString(bytes.ToArray()));
 
             Console.WriteLine(".........................................................");
+            Console.WriteLine(bytes.Count);
             Console.WriteLine(sb.ToString());
 
             string command = sb.ToString();
