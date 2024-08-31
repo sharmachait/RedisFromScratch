@@ -39,7 +39,8 @@ public class CommandHandler
                 break;
 
             case "ping":
-                //master is alive
+                Console.WriteLine("-------------------------------------------");
+                Console.WriteLine("pinged");
                 break;
 
             case "replconf":
@@ -56,7 +57,6 @@ public class CommandHandler
 
     public string ReplConfSlave(string[] command)
     {
-        Console.WriteLine(string.Join(" ",command));
         string res="";
         switch (command[1])
         {
