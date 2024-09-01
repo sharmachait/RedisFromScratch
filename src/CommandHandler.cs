@@ -72,7 +72,7 @@ public class CommandHandler
         return res;
     }
 
-    public async Task<ResponseDTO> Handle(string[] command, Client client, DateTime currTime, int bufferSize)
+    public async Task<ResponseDTO> Handle(string[] command, Client client, DateTime currTime)
     {
 
         string cmd = command[0];
@@ -96,7 +96,9 @@ public class CommandHandler
 
             case "set":
                 res = Set(client, command);
-                _infra.bytesSentToSlave += bufferSize;
+                string commandRespString = _parser.RespArray(command);
+                byte[] toCount = Encoding.UTF8.GetBytes(commandRespString);
+                _infra.bytesSentToSlave += toCount.Length;
                 _ = Task.Run(async () => await sendCommandToSlaves(_infra.slaves, command));
                 break;
 
@@ -215,7 +217,7 @@ public class CommandHandler
                 }
             }
         }
-
+        _infra.bytesSentToSlave += bufferSize;
         if (c < required)
             return _parser.RespInteger(c);
         return _parser.RespInteger(required);

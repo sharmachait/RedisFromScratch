@@ -78,7 +78,7 @@ class TcpServer
                 foreach (string[] command in commands)
                 {
                     
-                    ResponseDTO response = await _handler.Handle(command, client, DateTime.Now, bufferSize);
+                    ResponseDTO response = await _handler.Handle(command, client, DateTime.Now);
                     client.Send(response.response);
                     if (response.data != null)
                     {
@@ -197,6 +197,10 @@ class TcpServer
 
             string command = sb.ToString();
             string[] parts = command.Split("\r\n");
+
+            //if (command.Equals("+OK\r\n"))
+            //    continue;
+
             string[] commandArray = _parser.ParseArray(parts);
 
             string res = await _handler.HandleCommandsFromMaster(commandArray, master);
@@ -217,6 +221,7 @@ class TcpServer
                     if (!stream.DataAvailable)
                         break;
                 }
+                string t = Encoding.UTF8.GetString(leftovercommand.ToArray());
                 await stream.WriteAsync(Encoding.UTF8.GetBytes(res));
             }
 
@@ -224,21 +229,21 @@ class TcpServer
         }
     }
 
-    public async Task StartMasterPropagation(TcpClient ConnectionWithMaster, NetworkStream stream)
-    {
-        while (ConnectionWithMaster.Connected)
-        {
-            byte[] buffer = new byte[ConnectionWithMaster.ReceiveBufferSize];
-            int bytesRead = await stream.ReadAsync(buffer, 0, buffer.Length);
-            if (bytesRead > 0)
-            {
-                List<string[]> commands = _parser.Deserialize(buffer.Take(bytesRead).ToArray());
+    //public async Task StartMasterPropagation(TcpClient ConnectionWithMaster, NetworkStream stream)
+    //{
+    //    while (ConnectionWithMaster.Connected)
+    //    {
+    //        byte[] buffer = new byte[ConnectionWithMaster.ReceiveBufferSize];
+    //        int bytesRead = await stream.ReadAsync(buffer, 0, buffer.Length);
+    //        if (bytesRead > 0)
+    //        {
+    //            List<string[]> commands = _parser.Deserialize(buffer.Take(bytesRead).ToArray());
 
-                foreach (string[] command in commands)
-                {
-                    string response = await _handler.HandleCommandsFromMaster(command, ConnectionWithMaster);
-                }
-            }
-        }
-    }
+    //            foreach (string[] command in commands)
+    //            {
+    //                string response = await _handler.HandleCommandsFromMaster(command, ConnectionWithMaster);
+    //            }
+    //        }
+    //    }
+    //}
 }
