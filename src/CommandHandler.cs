@@ -179,6 +179,11 @@ public class CommandHandler
         while (stopwatch.ElapsedMilliseconds < time-100)
         {
             res = _infra.slavesThatAreCaughtUp;
+            if(res == 3)
+            {
+                Console.WriteLine("--------------------------------------------------------");
+                Console.WriteLine(stopwatch.ElapsedMilliseconds);
+            }
         }
         
         _infra.bytesSentToSlave += bufferSize;
