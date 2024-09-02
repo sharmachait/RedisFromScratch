@@ -176,7 +176,7 @@ public class CommandHandler
         }
 
         int res = 0;
-        while (stopwatch.ElapsedMilliseconds < time)
+        while (stopwatch.ElapsedMilliseconds < time-100)
         {
             res = _infra.slavesThatAreCaughtUp;
         }
