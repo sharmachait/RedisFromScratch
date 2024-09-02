@@ -110,9 +110,9 @@ public class CommandHandler
                 break;
 
             case "wait":
-                _infra.slavesThatAreCaughtUp = 0;
                 stopwatch.Start();
                 res = await WaitAsync(command, client, stopwatch);
+                _infra.slavesThatAreCaughtUp = 0;
                 break;
 
             case "psync":
@@ -247,6 +247,7 @@ public class CommandHandler
                 try
                 {
                     Slave slave = _infra.slaves.First((x) => { return x.connection.ipAddress.Equals(clientIpAddress); });
+                    _infra.slavesThatAreCaughtUp = _infra.slaves.Count;
                     for (int i = 0; i < command.Length; i++)
                     {
                         if (command[i].Equals("capa"))
