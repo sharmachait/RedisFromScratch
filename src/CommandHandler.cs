@@ -72,7 +72,7 @@ public class CommandHandler
         return res;
     }
 
-    public async Task<ResponseDTO> Handle(string[] command, Client client, DateTime currTime)
+    public async Task<ResponseDTO> Handle(string[] command, Client client, DateTime currTime, Stopwatch stopwatch)
     {
         string cmd = command[0];
         
@@ -110,7 +110,7 @@ public class CommandHandler
                 break;
 
             case "wait":
-                res = await WaitAsync(command, client);
+                res = await WaitAsync(command, client, stopwatch);
                 break;
 
             case "psync":
@@ -159,7 +159,7 @@ public class CommandHandler
         }
     }
 
-    public async Task<string> WaitAsync(string[] command, Client client)
+    public async Task<string> WaitAsync(string[] command, Client client, Stopwatch stopwatch)
     {
         string[] getackarr = new string[] { "REPLCONF", "GETACK", "*" };
         string getack = _parser.RespArray(getackarr);
@@ -168,8 +168,7 @@ public class CommandHandler
 
         int required = int.Parse(command[1]);
         int time = int.Parse(command[2]);
-        Stopwatch stopwatch = new Stopwatch();
-        stopwatch.Start();
+
         foreach (Slave slave in _infra.slaves)
         {
             _ = Task.Run(async () => { await slave.connection.SendAsync(byteArray); });
