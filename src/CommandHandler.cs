@@ -184,7 +184,7 @@ public class CommandHandler
         
         _infra.bytesSentToSlave += bufferSize;
         Console.WriteLine("-----------------------------------------------------------------------------");
-        Console.WriteLine(Math.Min(res,required));
+        Console.WriteLine(required);
         if (res > required)
             return _parser.RespInteger(required);
         return _parser.RespInteger(res);
