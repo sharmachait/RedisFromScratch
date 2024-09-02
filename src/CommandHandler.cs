@@ -110,6 +110,7 @@ public class CommandHandler
                 break;
 
             case "wait":
+                _infra.slavesThatAreCaughtUp = 0;
                 stopwatch.Start();
                 res = await WaitAsync(command, client, stopwatch);
                 break;
