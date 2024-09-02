@@ -168,13 +168,13 @@ public class CommandHandler
 
         int required = int.Parse(command[1]);
         int time = int.Parse(command[2]);
-
+        Stopwatch stopwatch = new Stopwatch();
+        stopwatch.Start();
         foreach (Slave slave in _infra.slaves)
         {
             _ = Task.Run(async () => { await slave.connection.SendAsync(byteArray); });
         }
-        Stopwatch stopwatch = new Stopwatch();
-        stopwatch.Start();
+        
 
         while (stopwatch.ElapsedMilliseconds < time)
         {
