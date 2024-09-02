@@ -32,8 +32,10 @@ public class Store
             }
             return "+OK\r\n";
         }
-        catch (Exception)
+        catch (Exception e)
         {
+            Console.WriteLine("-----------------------------------------------------------------");
+            Console.WriteLine(e.Message);
             return $"$-1\r\n";
         }
     }
