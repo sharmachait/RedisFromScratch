@@ -110,6 +110,7 @@ public class CommandHandler
                 break;
 
             case "wait":
+                stopwatch.Start();
                 res = await WaitAsync(command, client, stopwatch);
                 break;
 
