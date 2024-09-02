@@ -80,6 +80,3 @@ public class RespParser
         return $":{i}\r\n";
     }
 }
-
-
-

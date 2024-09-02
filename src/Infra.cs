@@ -7,9 +7,17 @@ namespace codecrafters_redis;
 
 public class Infra
 {
-    public int bytesSentToSlave=0;
-    public ConcurrentBag<Slave> slaves =  new ConcurrentBag<Slave>();
+    public int bytesSentToSlave = 0;
+    public ConcurrentBag<Slave> slaves = new ConcurrentBag<Slave>();
     public ConcurrentBag<Client> clients = new ConcurrentBag<Client>();
+    public int slavesThatAreCaughtUp = 0;
+    public void slaveAck(int ackResponse)
+    {
+        if (this.bytesSentToSlave == ackResponse)
+        {
+            this.slavesThatAreCaughtUp++;
+        }
+    }
 }
 
 
@@ -21,7 +29,7 @@ public class BaseClient
     public int port;
     public string ipAddress;
     public int id;
-    
+
     public async Task SendAsync(string response)
     {
         await stream.WriteAsync(Encoding.UTF8.GetBytes(response));
@@ -48,7 +56,7 @@ public class BaseClient
     }
 }
 
-public class Client: BaseClient
+public class Client : BaseClient
 {
     public Client(TcpClient socket, IPEndPoint ip, NetworkStream stream, int id)
     {

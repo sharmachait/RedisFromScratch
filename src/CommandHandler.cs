@@ -55,12 +55,12 @@ public class CommandHandler
 
     public string ReplConfSlave(string[] command)
     {
-        string res="";
+        string res = "";
         switch (command[1])
         {
             case "GETACK":
                 res = _parser.RespArray(
-                        new string[] {"REPLCONF", "ACK", _config.masterReplOffset.ToString()}
+                        new string[] { "REPLCONF", "ACK", _config.masterReplOffset.ToString() }
                     );
                 break;
 
@@ -74,7 +74,6 @@ public class CommandHandler
 
     public async Task<ResponseDTO> Handle(string[] command, Client client, DateTime currTime)
     {
-
         string cmd = command[0];
         
         string res = "";
@@ -125,7 +124,7 @@ public class CommandHandler
                 break;
         }
 
-        return new ResponseDTO(res,data);
+        return new ResponseDTO(res, data);
     }
 
     public string Set(Client client, string[] command)
@@ -156,14 +155,12 @@ public class CommandHandler
         foreach (Slave slave in slaves)
         {
             string commandRespString = _parser.RespArray(command);
-            
             await slave.connection.SendAsync(commandRespString);
         }
     }
 
     public async Task<string> WaitAsync(string[] command, Client client)
     {
-        int c = 0;
         string[] getackarr = new string[] { "REPLCONF", "GETACK", "*" };
         string getack = _parser.RespArray(getackarr);
         byte[] byteArray = Encoding.UTF8.GetBytes(getack);
@@ -172,54 +169,22 @@ public class CommandHandler
         int required = int.Parse(command[1]);
         int time = int.Parse(command[2]);
 
-        using (var cts = new CancellationTokenSource(time)) // Timeout in milliseconds
+        foreach (Slave slave in _infra.slaves)
         {
-            var tasks = _infra.slaves.Select(slave => Task.Run(async () =>
-            {
-                try
-                {
-                    slave.connection.Send(byteArray);
-
-                    byte[] buffer = new byte[client.socket.ReceiveBufferSize];
-                    int bytesRead = await slave.connection.stream.ReadAsync(buffer, 0, buffer.Length, cts.Token);
-                    string bytesProcessed = Encoding.UTF8.GetString(buffer, 0, bytesRead);
-
-                    int idxColon = bytesProcessed.IndexOf(":");
-                    int idxNewline = bytesProcessed.IndexOf("\r\n");
-                    string resultString = bytesProcessed.Substring(idxColon + 1, idxNewline - idxColon - 1);
-
-                    return int.Parse(resultString);
-                }
-                catch (OperationCanceledException)
-                {
-                    return -1; // Return a value indicating failure or cancellation
-                }
-            }, cts.Token)).ToList();
-            Stopwatch stopwatch = new Stopwatch();
-            stopwatch.Start();
-            while (stopwatch.ElapsedMilliseconds < time && c < required)
-            {
-                try
-                {
-                    Task<int> completedTask = await Task.WhenAny(tasks);
-                    tasks.Remove(completedTask);
-
-                    int result = await completedTask;
-
-                    if (result == _infra.bytesSentToSlave)
-                    {
-                        c++;
-                    }
-                }
-                catch (OperationCanceledException)
-                {
-                    break;
-                }
-            }
+            _ = Task.Run(async () => { await slave.connection.SendAsync(byteArray); });
         }
+        Stopwatch stopwatch = new Stopwatch();
+        stopwatch.Start();
+
+        while (stopwatch.ElapsedMilliseconds < time)
+        {
+            int x = 1;
+        }
+
         _infra.bytesSentToSlave += bufferSize;
-        if (c < required)
-            return _parser.RespInteger(c);
+
+        if (_infra.slavesThatAreCaughtUp < required)
+            return _parser.RespInteger(_infra.slavesThatAreCaughtUp);
         return _parser.RespInteger(required);
     }
 
@@ -259,7 +224,7 @@ public class CommandHandler
     {
         string clientIpAddress = client.remoteIpEndPoint.Address.ToString();
         int clientPort = client.remoteIpEndPoint.Port;
-
+        //for "*3\r\n$8\r\nREPLCONF\r\n$3\r\nACK\r\n$2\r\n29\r\n"
         switch (command[1])
         {
             case "listening-port":
@@ -294,7 +259,9 @@ public class CommandHandler
                     Console.WriteLine(e.Message);
                     return "+NOTOK\r\n";
                 }
-
+            case "ACK":
+                _infra.slaveAck(int.Parse(command[2]));
+                return "";
         }
         return "+OK\r\n";
     }
@@ -325,7 +292,7 @@ public class CommandHandler
                         .ToArray();
 
                 string res = $"+FULLRESYNC {_config.masterReplId} {_config.masterReplOffset}\r\n";
-                return new ResponseDTO(res,rdbResynchronizationFileMsg);
+                return new ResponseDTO(res, rdbResynchronizationFileMsg);
             }
             else
             {

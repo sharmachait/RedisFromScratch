@@ -8,8 +8,6 @@ public class RedisConfig
     public string masterHost;
     public string masterReplId;
     public long masterReplOffset;
-    
-
     public RedisConfig(string role, int port, int masterPort, string masterHost)
     {
         this.role = role;
@@ -19,7 +17,6 @@ public class RedisConfig
         masterReplId = Guid.NewGuid().ToString("N") + Guid.NewGuid().ToString("N").Substring(0, 8);
         masterReplOffset = 0;
     }
-
     public RedisConfig(int port)
     {
         role = "master";
@@ -29,7 +26,6 @@ public class RedisConfig
         masterReplId = Guid.NewGuid().ToString("N") + Guid.NewGuid().ToString("N").Substring(0, 8);
         masterReplOffset = 0;
     }
-
     public RedisConfig()
     {
         role = "master";
@@ -41,5 +37,3 @@ public class RedisConfig
     }
 
 }
-
-

@@ -1,7 +1,4 @@
-using codecrafters_redis;
 using Microsoft.Extensions.DependencyInjection;
-using System.Net;
-using System.Net.Sockets;
 
 namespace codecrafters_redis;
 
@@ -46,9 +43,9 @@ class Program
         {
             await app.StartMasterAsync();
         }
-        else 
+        else
         {
-            Console.WriteLine("slave at " + config.port + " of "+config.masterPort +" "+ config.masterHost);
+            Console.WriteLine("slave at " + config.port + " of " + config.masterPort + " " + config.masterHost);
             await app.StartSlaveAsync();
         }
     }

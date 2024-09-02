@@ -10,8 +10,6 @@ public class Store
     {
         map = new Dictionary<string, Value>();
     }
-
-
     public string Set(string[] command)
     {
         try
@@ -26,7 +24,7 @@ public class Store
             }
             else if (pxFlag >-1)// && command.Length == 5 && command[3].Equals("px")
             {
-                int delta = int.Parse(command[pxFlag+1]);
+                int delta = int.Parse(command[pxFlag + 1]);
 
                 DateTime now = DateTime.Now;
                 Value val = new Value(command[2], DateTime.Now, now.AddMilliseconds(delta));
@@ -39,7 +37,6 @@ public class Store
             return $"$-1\r\n";
         }
     }
-
     public string Get(string[] command, DateTime currTime)
     {
         try
@@ -64,7 +61,6 @@ public class Store
         
     }
 }
-
 public class Value 
 {
     public string val;

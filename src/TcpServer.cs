@@ -1,17 +1,12 @@
-﻿namespace codecrafters_redis;
-
-using codecrafters_redis;
-using System;
-using System.Diagnostics;
-using System.Diagnostics.Metrics;
-using System.IO;
+﻿using System;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
 
+namespace codecrafters_redis;
 class TcpServer
 {
-    public  TcpListener _server;
+    public TcpListener _server;
     private readonly RespParser _parser;
     private readonly CommandHandler _handler;
     private readonly RedisConfig _config;
@@ -34,7 +29,6 @@ class TcpServer
         id = 0;
         _server = new TcpListener(IPAddress.Any, config.port);
     }
-
 
     public async Task StartMasterAsync()
     {
@@ -77,7 +71,6 @@ class TcpServer
                 List<string[]> commands = _parser.Deserialize(buffer);
                 foreach (string[] command in commands)
                 {
-                    
                     ResponseDTO response = await _handler.Handle(command, client, DateTime.Now);
                     client.Send(response.response);
                     if (response.data != null)
@@ -135,9 +128,8 @@ class TcpServer
         Console.WriteLine($"Replicating from {_config.masterHost}: {_config.masterPort}");
         NetworkStream stream = master.GetStream();
         await StartListeningToMaster(master, stream);
-        //await StartMasterPropagation(master, stream);
     }
-    public async Task StartListeningToMaster(TcpClient master,NetworkStream stream)
+    public async Task StartListeningToMaster(TcpClient master, NetworkStream stream)
     {
         var lenListeningPort = _config.port.ToString().Length;
         var listeningPort = _config.port.ToString();
@@ -164,6 +156,9 @@ class TcpServer
         List<byte> psyncReponse = new List<byte>();
         while (true)
         {
+            if (!stream.DataAvailable)
+                continue;
+
             var b = stream.ReadByte();
             psyncReponse.Add((byte)b);
             if (b == '*')
@@ -180,26 +175,27 @@ class TcpServer
 
             while (true)
             {
-                byte b =(byte)stream.ReadByte();
+                byte b = (byte)stream.ReadByte();
                 if (b == '*')
                    break;
                 
                 offset++;
                 bytes.Add(b);
+
                 if (!stream.DataAvailable)
                     break;
             }
 
             sb.Append(Encoding.UTF8.GetString(bytes.ToArray()));
-
+            string x = sb.ToString();
             if (bytes.Count == 0)
                 continue;
 
             string command = sb.ToString();
             string[] parts = command.Split("\r\n");
 
-            //if (command.Equals("+OK\r\n"))
-            //    continue;
+            if (command.Equals("+OK\r\n"))
+                continue;
 
             string[] commandArray = _parser.ParseArray(parts);
 
@@ -211,15 +207,15 @@ class TcpServer
                 List<byte> leftovercommand = new List<byte>();
                 while (true)
                 {
+                    if (!stream.DataAvailable)
+                        break;
+
                     byte b = (byte)stream.ReadByte();
                     leftovercommand.Add(b);
                     if (b == '*')
                         break;
 
                     offset++;
-                    
-                    if (!stream.DataAvailable)
-                        break;
                 }
                 string t = Encoding.UTF8.GetString(leftovercommand.ToArray());
                 await stream.WriteAsync(Encoding.UTF8.GetBytes(res));
@@ -228,22 +224,4 @@ class TcpServer
             _config.masterReplOffset += offset;
         }
     }
-
-    //public async Task StartMasterPropagation(TcpClient ConnectionWithMaster, NetworkStream stream)
-    //{
-    //    while (ConnectionWithMaster.Connected)
-    //    {
-    //        byte[] buffer = new byte[ConnectionWithMaster.ReceiveBufferSize];
-    //        int bytesRead = await stream.ReadAsync(buffer, 0, buffer.Length);
-    //        if (bytesRead > 0)
-    //        {
-    //            List<string[]> commands = _parser.Deserialize(buffer.Take(bytesRead).ToArray());
-
-    //            foreach (string[] command in commands)
-    //            {
-    //                string response = await _handler.HandleCommandsFromMaster(command, ConnectionWithMaster);
-    //            }
-    //        }
-    //    }
-    //}
 }
