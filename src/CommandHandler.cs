@@ -94,7 +94,6 @@ public class CommandHandler
                 break;
 
             case "set":
-                _infra.slavesThatAreCaughtUp = 0;
                 res = Set(client, command);
                 string commandRespString = _parser.RespArray(command);
                 byte[] toCount = Encoding.UTF8.GetBytes(commandRespString);
@@ -187,8 +186,8 @@ public class CommandHandler
         _infra.bytesSentToSlave += bufferSize;
         Console.WriteLine("-----------------------------------------------------------------------------");
         Console.WriteLine(required);
-        //if (res > required)
-        //    return _parser.RespInteger(required);
+        if (res > required)
+            return _parser.RespInteger(required);
         return _parser.RespInteger(res);
     }
 
@@ -248,7 +247,7 @@ public class CommandHandler
                 try
                 {
                     Slave slave = _infra.slaves.First((x) => { return x.connection.ipAddress.Equals(clientIpAddress); });
-                    _infra.slavesThatAreCaughtUp = _infra.slaves.Count;
+                    
                     for (int i = 0; i < command.Length; i++)
                     {
                         if (command[i].Equals("capa"))
@@ -299,6 +298,7 @@ public class CommandHandler
                         .ToArray();
 
                 string res = $"+FULLRESYNC {_config.masterReplId} {_config.masterReplOffset}\r\n";
+                _infra.slavesThatAreCaughtUp++;
                 return new ResponseDTO(res, rdbResynchronizationFileMsg);
             }
             else
