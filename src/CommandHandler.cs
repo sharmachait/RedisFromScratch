@@ -94,6 +94,7 @@ public class CommandHandler
                 break;
 
             case "set":
+                _infra.slavesThatAreCaughtUp = 0;
                 res = Set(client, command);
                 string commandRespString = _parser.RespArray(command);
                 byte[] toCount = Encoding.UTF8.GetBytes(commandRespString);
