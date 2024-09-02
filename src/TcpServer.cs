@@ -73,7 +73,7 @@ class TcpServer
                 foreach (string[] command in commands)
                 {
                     Stopwatch stopwatch = new Stopwatch();
-                    stopwatch.Start();
+                    
                     ResponseDTO response = await _handler.Handle(command, client, DateTime.Now, stopwatch);
                     client.Send(response.response);
                     if (response.data != null)

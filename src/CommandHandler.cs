@@ -174,17 +174,17 @@ public class CommandHandler
         {
             _ = Task.Run(async () => { await slave.connection.SendAsync(byteArray); });
         }
-        
 
+        int res = 0;
         while (stopwatch.ElapsedMilliseconds < time)
         {
-            int x = 1;
+            res = _infra.slavesThatAreCaughtUp;
         }
-
+        
         _infra.bytesSentToSlave += bufferSize;
 
-        if (_infra.slavesThatAreCaughtUp < required)
-            return _parser.RespInteger(_infra.slavesThatAreCaughtUp);
+        if (res < required)
+            return _parser.RespInteger(res);
         return _parser.RespInteger(required);
     }
 
