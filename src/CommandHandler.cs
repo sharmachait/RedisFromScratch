@@ -176,7 +176,7 @@ public class CommandHandler
         }
 
         int res = 0;
-        while (stopwatch.ElapsedMilliseconds < time/2)
+        while (stopwatch.ElapsedMilliseconds < time)
         {
             res = _infra.slavesThatAreCaughtUp;
 
@@ -184,9 +184,9 @@ public class CommandHandler
         
         _infra.bytesSentToSlave += bufferSize;
 
-        if (res < required)
-            return _parser.RespInteger(res);
-        return _parser.RespInteger(required);
+        if (res > required)
+            return _parser.RespInteger(required);
+        return _parser.RespInteger(res);
     }
 
     public string Info(string[] command)
