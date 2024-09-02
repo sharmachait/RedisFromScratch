@@ -263,7 +263,7 @@ public class CommandHandler
                 }
             case "ACK":
                 Console.WriteLine("-----------------------------------------------------------------------------");
-                Console.WriteLine("received ack "+ int.Parse(command[2]);
+                Console.WriteLine("received ack "+ int.Parse(command[2]));
                 _infra.slaveAck(int.Parse(command[2]));
                 return "";
         }
