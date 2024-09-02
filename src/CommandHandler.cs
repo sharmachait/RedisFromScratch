@@ -262,6 +262,8 @@ public class CommandHandler
                     return "+NOTOK\r\n";
                 }
             case "ACK":
+                Console.WriteLine("-----------------------------------------------------------------------------");
+                Console.WriteLine("received ack "+ int.Parse(command[2]);
                 _infra.slaveAck(int.Parse(command[2]));
                 return "";
         }
