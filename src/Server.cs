@@ -22,6 +22,12 @@ class Program
                     config.masterHost = masterHost;
                     config.masterPort = masterPort;
                     break;
+                case "--dir":
+                    config.dir = args[i + 1];
+                    break;
+                case "--dbfilename":
+                    config.dbfilename = args[i + 1];
+                    break;
                 default:
                     break;
             }

@@ -8,6 +8,8 @@ public class RedisConfig
     public string masterHost;
     public string masterReplId;
     public long masterReplOffset;
+    public string dir;
+    public string dbfilename;
     public RedisConfig(string role, int port, int masterPort, string masterHost)
     {
         this.role = role;

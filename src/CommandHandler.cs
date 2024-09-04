@@ -80,8 +80,11 @@ public class CommandHandler
         byte[]? data = null;
         switch (cmd)
         {
+            case "config":
+                res = config(command);
+                break;
+
             case "ping":
-                
                 res = "+PONG\r\n";
                 break;
 
@@ -315,6 +318,32 @@ public class CommandHandler
         {
             Console.WriteLine(e.Message);
             return new ResponseDTO("Options not supported");
+        }
+    }
+
+    public string config(string[] command)
+    {
+        Console.WriteLine("---------------------------------------------------------------");
+
+        Console.WriteLine(command[1]);
+        Console.WriteLine(command[2]);
+
+        switch (command[1])
+        {
+            case "GET":
+                switch (command[2])
+                {
+                    case "dir":
+                        return _config.dir;
+
+                    case "dbfilename":
+                        return _config.dbfilename;
+
+                    default:
+                        return "invalid options";
+                }
+            default:
+                return "invalid operation";
         }
     }
 }
