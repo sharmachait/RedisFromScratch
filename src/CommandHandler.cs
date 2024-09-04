@@ -334,10 +334,10 @@ public class CommandHandler
                 switch (command[2])
                 {
                     case "dir":
-                        return _config.dir;
+                        return _parser.RespArray(new string[] {"dir", _config.dir });
 
                     case "dbfilename":
-                        return _config.dbfilename;
+                        return _parser.RespArray(new string[] { "dir", _config.dbfilename });
 
                     default:
                         return "invalid options";
